@@ -262,6 +262,7 @@ function buildIrregularVerbs() {
   return words;
 }
 
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -270,6 +271,7 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
 
 function normalize(value) {
   return String(value ?? "").trim();
