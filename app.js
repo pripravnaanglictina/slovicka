@@ -1422,6 +1422,7 @@ app.addEventListener("click", (event) => {
   if (action === "custom-listen") navigate("customListen");
   if (action === "listen-prompt") navigate("listenPrompt");
   if (action === "smart-practice") startSmartPractice();
+  if (action === "practice-irregular") startDeckPractice("Nepravidelná slovesa");
   if (action === "problems") navigate("problems");
   if (action === "export") navigate("export");
   if (action === "delete-all") deleteAll();
