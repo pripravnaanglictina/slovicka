@@ -712,6 +712,7 @@ function renderHome() {
       </div>
       <div class="button-grid">
         <button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button>
+       <button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button>
         <button class="btn" type="button" data-action="decks">Lekce</button>
         <button class="btn secondary" type="button" data-action="tags">Štítky</button>
         <button class="btn secondary" type="button" data-action="import">Import</button>
