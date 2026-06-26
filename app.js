@@ -59,7 +59,7 @@ CZ: český překlad věty`;
 
 const IRREGULAR_VERBS = [
 
-"be", "bí", "was / were", "woz / wér", "být", "", "", "been"],
+["be", "bí", "was / were", "woz / wér", "být", "", "", "been"],
 ["become", "bikem", "became", "bikejm", "stát se", "", "", "become"],
 ["begin", "bigin", "began", "bigen", "začít", "", "", "begun"],
 ["break", "brejk", "broke", "brouk", "rozbít", "", "", "broken"],
