@@ -2,13 +2,9 @@
 
 const STORAGE_KEY = "vocabTrainerData";
 const LISTEN_STORAGE_KEY = "vocabTrainerListenText";
-const PRESET_VERSION = 8;
+const PRESET_VERSION = 9;
 const SMART_LIMIT = 20;
-const TODAY_LABEL = new Date().toLocaleDateString("cs-CZ", {
-  day: "numeric",
-  month: "numeric",
-  year: "numeric",
-});
+const TODAY_LABEL = new Date().toLocaleDateString("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" });
 
 const IMPORT_TEMPLATE = `deck;tags;en;pronounce;cz;example;note
 Lekce 2;cestování, fráze;go away;gou əwéj;odjet pryč;We went away for the weekend.;
@@ -32,7 +28,6 @@ Pravidla:
 - nevkládej nepravidelná slovesa, ta už jsou v aplikaci
 - když jde o frázi, dej štítek fráze
 - když jde o slovíčko, které mi nejde, přidej štítek neznám
-- pokud stejné slovíčko patří do více lekcí, napiš lekce do deck oddělené čárkou, například Lekce 1, Lekce 2
 - nepoužívej středník uvnitř hodnot
 - každý řádek musí mít přesně 7 sloupců
 - ponech hlavičku jako první řádek
@@ -47,15 +42,11 @@ pauseBeforeCzech: 3
 
 bought = koupil
 EN: I bought a new phone.
-CZ: Koupil jsem si nový telefon.
-
-went = šel / jel
-EN: We went to Prague yesterday.
-CZ: Včera jsme jeli do Prahy.`;
+CZ: Koupil jsem si nový telefon.`;
 
 const GPT_LISTEN_PROMPT = `Připrav mi podklad pro poslech do mé aplikace na učení angličtiny.
 
-Výstup musí být pouze čistý text v tomto formátu, bez komentářů okolo:
+Výstup musí být pouze čistý text ve formátu:
 
 title: Název poslechu
 repeat: 2
@@ -64,25 +55,7 @@ pauseBeforeCzech: 3
 
 anglické slovo nebo fráze = český překlad
 EN: krátká anglická věta
-CZ: český překlad věty
-
-Když je v české větě anglické slovo nebo fráze, označ ho takto:
-CZ: Sloveso [EN:bought] znamená koupil.
-
-Pravidla:
-- EN věta má být přirozená, krátká a vhodná pro poslech.
-- CZ věta musí přesně odpovídat anglické větě.
-- Každý blok musí mít řádek EN a hned pod ním řádek CZ.
-- Pokud procvičujeme slovesa v minulém čase, dej na řádek nad větou tvar v past simple, například bought = koupil.
-- Pokud se v českém textu objeví anglické slovo nebo fráze, vždy ho označ značkou [EN:...].
-- Značku [EN:...] používej jen v českých řádcích CZ, ne v anglických řádcích EN.
-- Připrav zhruba 10 minut poslechu.
-- Raději používej kratší věty než dlouhé souvětí.
-- Nepiš odrážky, číslování ani vysvětlení.
-- Nepoužívej středníky jako oddělovače, toto není CSV.
-
-Téma / moje poznámky:
-[vložím text]`;
+CZ: český překlad věty`;
 
 const IRREGULAR_VERBS = [
   ["be", "bí", "was / were", "woz / wér", "být", "I am at home.", "I was at home yesterday.", "been"],
@@ -112,1359 +85,135 @@ const IRREGULAR_VERBS = [
 ];
 
 const app = document.querySelector("#app");
-
-const state = {
-  words: loadWords(),
-  view: "home",
-  params: {},
-  importText: "",
-  importResult: null,
-  practice: null,
-  customListen: {
-    text: loadListenText(),
-    parsed: null,
-    index: 0,
-    playing: false,
-    currentStep: "",
-  },
-};
-
+const state = { words: loadWords(), view: "home", params: {}, importText: "", importResult: null, practice: null, irregularFormsPractice: null, customListen: { text: loadListenText(), parsed: null, index: 0, playing: false, currentStep: "" } };
 let listenRunId = 0;
-const listenTimers = new Set();
 
-function createId() {
-  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-}
-
-function loadWords() {
-  let words = [];
-  let presetVersion = 0;
-
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      words = Array.isArray(parsed.words) ? parsed.words : [];
-      presetVersion = Number(parsed.presetVersion || 0);
-    }
-  } catch (error) {
-    console.warn("Uložená data se nepodařilo načíst.", error);
-  }
-
-  words = normalizeWords(words);
-  if (presetVersion < PRESET_VERSION) {
-    words = mergeWords(words, buildIrregularVerbs()).words;
-  }
-
-  saveWords(words);
-  return words;
-}
-
-function saveWords(words = state.words) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    presetVersion: PRESET_VERSION,
-    words: normalizeWords(words),
-  }));
-}
-
-function loadListenText() {
-  try {
-    return localStorage.getItem(LISTEN_STORAGE_KEY) || LISTEN_TEMPLATE;
-  } catch (error) {
-    console.warn("Text poslechu se nepodařilo načíst.", error);
-    return LISTEN_TEMPLATE;
-  }
-}
-
-function saveListenText(text) {
-  try {
-    localStorage.setItem(LISTEN_STORAGE_KEY, text);
-  } catch (error) {
-    console.warn("Text poslechu se nepodařilo uložit.", error);
-  }
-}
-
-function normalizeWords(words) {
-  return words.map((word) => {
-    const deck = normalize(word.deck || word.decks?.[0] || "Bez lekce");
-    const decks = uniqueList([...(Array.isArray(word.decks) ? word.decks : []), deck]);
-    let tags = uniqueList(Array.isArray(word.tags) ? word.tags : splitTags(word.tags));
-    if (decks.includes("Nepravidelná slovesa")) {
-      tags = tags.filter((tag) => tag.toLocaleLowerCase("cs-CZ") !== "nepravidelná slovesa");
-    }
-
-    return {
-      id: word.id || createId(),
-      deck,
-      decks,
-      tags,
-      en: normalize(word.en),
-      pronounce: normalize(word.pronounce),
-      cz: normalize(word.cz),
-      example: normalize(word.example),
-      note: normalize(word.note),
-      mistakes: Number(word.mistakes || 0),
-      correct: Number(word.correct || 0),
-      seenCount: Number(word.seenCount || 0),
-      streak: Number(word.streak || 0),
-      lastPracticedAt: word.lastPracticedAt || "",
-      lastWrongAt: word.lastWrongAt || "",
-      createdAt: word.createdAt || new Date().toISOString(),
-    };
-  }).filter((word) => word.en && word.cz);
-}
-
-function makeIrregularWord(en, pronounce, cz, example, note, tags) {
-  return {
-    id: createId(),
-    deck: "Nepravidelná slovesa",
-    decks: ["Nepravidelná slovesa"],
-    tags,
-    en,
-    pronounce,
-    cz,
-    example,
-    note,
-    mistakes: 0,
-    correct: 0,
-    seenCount: 0,
-    streak: 0,
-    lastPracticedAt: "",
-    lastWrongAt: "",
-    createdAt: new Date().toISOString(),
-  };
-}
-
-function buildIrregularVerbs() {
-  const words = [];
-
-  IRREGULAR_VERBS.forEach(([base, basePronounce, past, pastPronounce, cz, baseExample, pastExample, participle]) => {
-    words.push(makeIrregularWord(
-      base,
-      basePronounce,
-      cz,
-      baseExample,
-      `past simple: ${past}, past participle: ${participle}`,
-      ["slovesa", "infinitiv"]
-    ));
-
-    words.push(makeIrregularWord(
-      past,
-      pastPronounce,
-      `${cz} - minulý čas`,
-      pastExample,
-      `past simple od slovesa ${base}; past participle: ${participle}`,
-      ["slovesa", "past simple"]
-    ));
-  });
-
-  return words;
-}
-
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-
-function normalize(value) {
-  return String(value ?? "").trim();
-}
-
-function uniqueList(values) {
-  const seen = new Set();
-  return values
-    .map(normalize)
-    .filter(Boolean)
-    .filter((value) => {
-      const key = value.toLocaleLowerCase("cs-CZ");
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
-}
-
-function splitTags(value) {
-  if (Array.isArray(value)) return value;
-  return String(value || "").split(",").map(normalize).filter(Boolean);
-}
-
-function identityKey(word) {
-  return `${word.en.toLocaleLowerCase("en-US")}::${word.cz.toLocaleLowerCase("cs-CZ")}`;
-}
-
-function mergeWords(existingWords, incomingWords) {
-  const words = normalizeWords(existingWords);
-  const index = new Map(words.map((word) => [identityKey(word), word]));
-  let added = 0;
-  let merged = 0;
-
-  normalizeWords(incomingWords).forEach((incoming) => {
-    const current = index.get(identityKey(incoming));
-
-    if (!current) {
-      words.push(incoming);
-      index.set(identityKey(incoming), incoming);
-      added += 1;
-      return;
-    }
-
-    current.decks = uniqueList([...current.decks, ...incoming.decks]);
-    current.deck = current.decks[0];
-    current.tags = uniqueList([...current.tags, ...incoming.tags]);
-    current.pronounce = current.pronounce || incoming.pronounce;
-    current.example = current.example || incoming.example;
-    current.note = uniqueList([current.note, incoming.note]).join(" | ");
-    merged += 1;
-  });
-
-  return { words, added, merged };
-}
-
-function parseImport(text) {
-  const lines = String(text || "").split(/\r?\n/);
-  const first = lines.find((line) => line.trim())?.trim().toLowerCase() || "";
-  if (first.startsWith("deck;")) return parseCsvImport(lines);
-  return parseSmartImport(lines);
-}
-
-function parseSmartImport(lines) {
-  const words = [];
-  const errors = [];
-  const now = new Date().toISOString();
-  let currentDeck = `Import ${TODAY_LABEL}`;
-  let currentTags = [];
-  let lastWord = null;
-
-  lines.forEach((rawLine, index) => {
-    const original = rawLine;
-    let line = normalize(rawLine).replace(/^[•*-]\s*/, "");
-    if (!line || /^slovíčka:?$/i.test(line)) return;
-
-    const deckMatch = line.match(/^deck\s*:\s*(.+)$/i);
-    if (deckMatch) {
-      currentDeck = normalize(deckMatch[1]);
-      lastWord = null;
-      return;
-    }
-
-    const tagsMatch = line.match(/^tags\s*:\s*(.+)$/i);
-    if (tagsMatch) {
-      currentTags = splitTags(tagsMatch[1]);
-      lastWord = null;
-      return;
-    }
-
-    const sentenceMatch = line.match(/^(sentence|věta)\s*:\s*(.+)$/i);
-    if (sentenceMatch) {
-      if (!lastWord) return addImportError(errors, index, original, "Věta nemá slovíčko nad sebou.");
-      lastWord.example = normalize(sentenceMatch[2]);
-      return;
-    }
-
-    const noteMatch = line.match(/^(note|poznámka)\s*:\s*(.+)$/i);
-    if (noteMatch) {
-      if (!lastWord) return addImportError(errors, index, original, "Poznámka nemá slovíčko nad sebou.");
-      lastWord.note = normalize(noteMatch[2]);
-      return;
-    }
-
-    const wordMatch = line.match(/^(.+?)\s*(?:\[([^\]]*)\])?\s*=\s*(.+)$/);
-    if (!wordMatch) {
-      addImportError(errors, index, original, "Řádek není ve formátu slovíčko [výslovnost] = překlad.");
-      return;
-    }
-
-    const en = normalize(wordMatch[1]);
-    const pronounce = normalize(wordMatch[2] || "");
-    const cz = normalize(wordMatch[3]);
-
-    if (!currentDeck || !en || !cz) {
-      addImportError(errors, index, original, "Chybí lekce, anglický výraz nebo český překlad.");
-      return;
-    }
-
-    lastWord = {
-      id: createId(),
-      deck: currentDeck,
-      decks: [currentDeck],
-      tags: currentTags,
-      en,
-      pronounce,
-      cz,
-      example: "",
-      note: "",
-      mistakes: 0,
-      correct: 0,
-      createdAt: now,
-    };
-    words.push(lastWord);
-  });
-
-  return { words, errors };
-}
-
-function parseCsvImport(lines) {
-  const words = [];
-  const errors = [];
-  const now = new Date().toISOString();
-  const headers = splitCsvLine(lines[0]).map((header) => header.toLowerCase());
-
-  lines.slice(1).forEach((line, offset) => {
-    if (!line.trim()) return;
-    const columns = splitCsvLine(line);
-    const value = (name, fallbackIndex) => {
-      const headerIndex = headers.indexOf(name);
-      return normalize(columns[headerIndex >= 0 ? headerIndex : fallbackIndex]);
-    };
-
-    const deckValue = value("deck", 0);
-    const decks = splitTags(deckValue);
-    const deck = decks[0] || deckValue;
-    const tags = headers.includes("tags") ? splitTags(value("tags", 1)) : [];
-    const en = headers.includes("tags") ? value("en", 2) : value("en", 1);
-    const pronounce = headers.includes("tags") ? value("pronounce", 3) : value("pronounce", 2);
-    const cz = headers.includes("tags") ? value("cz", 4) : value("cz", 3);
-    const example = headers.includes("tags") ? value("example", 5) : value("example", 4);
-    const note = headers.includes("tags") ? value("note", 6) : value("note", 5);
-
-    if (!deck || !en || !cz) {
-      addImportError(errors, offset + 1, line, "Chybí deck, en nebo cz.");
-      return;
-    }
-
-    words.push({
-      id: createId(),
-      deck,
-      decks: decks.length ? decks : [deck],
-      tags,
-      en,
-      pronounce,
-      cz,
-      example,
-      note,
-      mistakes: 0,
-      correct: 0,
-      createdAt: now,
-    });
-  });
-
-  return { words, errors };
-}
-
-function splitCsvLine(line) {
-  const cells = [];
-  let cell = "";
-  let quoted = false;
-
-  for (let i = 0; i < line.length; i += 1) {
-    const char = line[i];
-    const next = line[i + 1];
-    if (char === '"' && quoted && next === '"') {
-      cell += '"';
-      i += 1;
-    } else if (char === '"') {
-      quoted = !quoted;
-    } else if (char === ";" && !quoted) {
-      cells.push(cell);
-      cell = "";
-    } else {
-      cell += char;
-    }
-  }
-
-  cells.push(cell);
-  return cells.map(normalize);
-}
-
-function addImportError(errors, index, text, message) {
-  errors.push({ line: index + 1, text, message });
-}
-
-function parseListenText(text) {
-  const lines = String(text || "").split(/\r?\n/);
-  const result = {
-    title: "Vlastní poslech",
-    repeat: 2,
-    pauseAfterEnglish: 2,
-    pauseBeforeCzech: 3,
-    items: [],
-    errors: [],
-  };
-  let currentWord = null;
-  let pendingItem = null;
-
-  lines.forEach((rawLine, index) => {
-    const original = rawLine;
-    const line = normalize(rawLine);
-    if (!line) return;
-
-    const settingMatch = line.match(/^(title|repeat|pauseAfterEnglish|pauseBeforeCzech)\s*:\s*(.+)$/i);
-    if (settingMatch) {
-      const key = settingMatch[1].toLowerCase();
-      const value = normalize(settingMatch[2]);
-      if (key === "title") result.title = value || result.title;
-      if (key === "repeat") result.repeat = clampNumber(value, 1, 4, 2);
-      if (key === "pauseafterenglish") result.pauseAfterEnglish = clampNumber(value, 0, 10, 2);
-      if (key === "pausebeforeczech") result.pauseBeforeCzech = clampNumber(value, 0, 12, 3);
-      return;
-    }
-
-    const enMatch = line.match(/^EN\s*:\s*(.+)$/i);
-    if (enMatch) {
-      if (pendingItem && !pendingItem.cz) {
-        result.errors.push({ line: index + 1, text: original, message: "Předchozí EN věta nemá český řádek CZ." });
-      }
-      pendingItem = {
-        wordEn: currentWord?.en || "",
-        wordCz: currentWord?.cz || "",
-        en: normalize(enMatch[1]),
-        cz: "",
-      };
-      result.items.push(pendingItem);
-      return;
-    }
-
-    const czMatch = line.match(/^CZ\s*:\s*(.+)$/i);
-    if (czMatch) {
-      if (!pendingItem || pendingItem.cz) {
-        result.errors.push({ line: index + 1, text: original, message: "Řádek CZ nemá nad sebou odpovídající EN." });
-        return;
-      }
-      pendingItem.cz = normalize(czMatch[1]);
-      return;
-    }
-
-    const wordMatch = line.match(/^(.+?)\s*=\s*(.+)$/);
-    if (wordMatch) {
-      currentWord = {
-        en: normalize(wordMatch[1]),
-        cz: normalize(wordMatch[2]),
-      };
-      pendingItem = null;
-      return;
-    }
-
-    result.errors.push({ line: index + 1, text: original, message: "Řádek není nastavení, slovíčko ani EN/CZ věta." });
-  });
-
-  result.items = result.items.filter((item) => {
-    if (item.en && item.cz) return true;
-    result.errors.push({ line: "-", text: item.en, message: "EN věta nemá český překlad CZ." });
-    return false;
-  });
-
-  return result;
-}
-
-function clampNumber(value, min, max, fallback) {
-  const number = Number(String(value).replace(",", "."));
-  if (!Number.isFinite(number)) return fallback;
-  return Math.min(max, Math.max(min, number));
-}
-
-function getDeckNames(word) {
-  return uniqueList(Array.isArray(word.decks) && word.decks.length ? word.decks : [word.deck]);
-}
-
-function getDecks(words = state.words) {
-  const decks = new Map();
-  words.forEach((word) => {
-    getDeckNames(word).forEach((name) => {
-      if (!decks.has(name)) decks.set(name, { name, count: 0, problemCount: 0 });
-      const deck = decks.get(name);
-      deck.count += 1;
-      if (word.mistakes > 0) deck.problemCount += 1;
-    });
-  });
-  return Array.from(decks.values()).sort((a, b) => a.name.localeCompare(b.name, "cs"));
-}
-
-function getTags(words = state.words) {
-  const tags = new Map();
-  words.forEach((word) => {
-    word.tags.forEach((name) => {
-      if (!tags.has(name)) tags.set(name, { name, count: 0, problemCount: 0 });
-      const tag = tags.get(name);
-      tag.count += 1;
-      if (word.mistakes > 0) tag.problemCount += 1;
-    });
-  });
-  return Array.from(tags.values()).sort((a, b) => a.name.localeCompare(b.name, "cs"));
-}
-
-function getWordsForDeck(deck) {
-  return state.words.filter((word) => getDeckNames(word).includes(deck));
-}
-
-function getWordsForTag(tag) {
-  return state.words.filter((word) => word.tags.includes(tag));
-}
-
-function getProblemWords() {
-  return state.words
-    .filter((word) => Number(word.mistakes) > 0)
-    .sort((a, b) => b.mistakes - a.mistakes || a.en.localeCompare(b.en));
-}
-
-function daysSince(isoDate) {
-  if (!isoDate) return 999;
-  const time = new Date(isoDate).getTime();
-  if (Number.isNaN(time)) return 999;
-  return Math.max(0, Math.floor((Date.now() - time) / 86400000));
-}
-
-function smartScore(word) {
-  const mistakes = Number(word.mistakes || 0);
-  const correct = Number(word.correct || 0);
-  const seenCount = Number(word.seenCount || 0);
-  const streak = Number(word.streak || 0);
-  const daysFromPractice = daysSince(word.lastPracticedAt || word.createdAt);
-  const daysFromWrong = daysSince(word.lastWrongAt);
-
-  let score = 0;
-  if (!seenCount) score += 120;
-  score += mistakes * 14;
-  score -= correct * 2;
-  score -= streak * 8;
-  score += Math.min(daysFromPractice, 30);
-  if (word.lastWrongAt) score += Math.max(0, 18 - daysFromWrong);
-  return score;
-}
-
-function selectSmartWords(words, limit = SMART_LIMIT) {
-  return [...words]
-    .sort((a, b) => smartScore(b) - smartScore(a) || a.en.localeCompare(b.en, "en"))
-    .slice(0, limit);
-}
-
-function navigate(view, params = {}) {
-  state.view = view;
-  state.params = params;
-  state.importResult = view === "import" ? state.importResult : null;
-  render();
-}
-
-function goBack() {
-  if (state.view === "home") return;
-  if (state.view === "wordList") return navigate(state.params.type === "tag" ? "tags" : "decks");
-  if (state.view === "practice") {
-    if (state.practice?.source === "tag") return navigate("tags");
-    if (state.practice?.source === "tag-short") return navigate("tags");
-    if (state.practice?.source === "problems") return navigate("problems");
-    if (state.practice?.source === "smart") return navigate("home");
-    return navigate("decks");
-  }
-  if (state.view === "listenPrompt") return navigate("customListen");
-  navigate("home");
-}
-
-function header(title, back = true) {
-  return `
-    <div class="topbar">
-      ${back ? `<button class="back-button" type="button" data-action="back" aria-label="Zpět">‹</button>` : ""}
-      <h1>${escapeHtml(title)}</h1>
-    </div>
-  `;
-}
-
-function render() {
-  const views = {
-    home: renderHome,
-    decks: renderDecks,
-    tags: renderTags,
-    import: renderImport,
-    wordList: renderWordList,
-    practice: renderPractice,
-    problems: renderProblems,
-    export: renderExport,
-    audio: renderAudio,
-    gptPrompt: renderGptPrompt,
-    customListen: renderCustomListen,
-    listenPrompt: renderListenPrompt,
-  };
-  app.innerHTML = (views[state.view] || renderHome)();
-}
-
-function renderHome() {
-  const allCount = state.words.length;
-  const deckCount = getDecks().length;
-  const tagCount = getTags().length;
-  const problemCount = getProblemWords().length;
-
-  return `
-    ${header("Moje slovíčka", false)}
-    <section class="stack">
-      <div class="stats-grid stats-grid-four" aria-label="Souhrn slovíček">
-        <div class="stat"><strong>${allCount}</strong><span>slovíček</span></div>
-        <div class="stat"><strong>${deckCount}</strong><span>lekcí</span></div>
-        <div class="stat"><strong>${tagCount}</strong><span>štítků</span></div>
-        <div class="stat"><strong>${problemCount}</strong><span>problémových</span></div>
-      </div>
-      <div class="notice">
-        Výchozí aplikace obsahuje jen nepravidelná slovesa. Ostatní lekce si přidávej importem z GPT přímo v telefonu.
-      </div>
-      <div class="button-grid">
-        <button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button>
-       <button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button>
-        <button class="btn" type="button" data-action="decks">Lekce</button>
-        <button class="btn secondary" type="button" data-action="tags">Štítky</button>
-        <button class="btn secondary" type="button" data-action="import">Import</button>
-        <button class="btn secondary" type="button" data-action="gpt-prompt">Prompt pro GPT</button>
-        <button class="btn secondary" type="button" data-action="audio">Poslech</button>
-        <button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button>
-        <button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button>
-        <button class="btn secondary" type="button" data-action="export">Export/Záloha</button>
-        <button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button>
-      </div>
-    </section>
-  `;
-}
-
-function renderDecks() {
-  const decks = getDecks();
-  return `
-    ${header("Lekce")}
-    <section class="stack">
-      ${decks.length ? decks.map((deck) => renderCollectionRow(deck, "deck")).join("") : `<div class="empty-state">Zatím tu nejsou žádné lekce.</div>`}
-    </section>
-  `;
-}
-
-function renderTags() {
-  const tags = getTags();
-  return `
-    ${header("Štítky")}
-    <section class="stack">
-      ${tags.length ? tags.map((tag) => renderCollectionRow(tag, "tag")).join("") : `<div class="empty-state">Zatím tu nejsou žádné štítky.</div>`}
-    </section>
-  `;
-}
-
-function renderCollectionRow(item, type) {
-  const actionPrefix = type === "tag" ? "tag" : "deck";
-  const label = type === "tag" ? "štítek" : "lekce";
-  return `
-    <article class="deck-row">
-      <div>
-        <h2>${escapeHtml(item.name)}</h2>
-        <div class="row-meta">
-          <span class="pill">${item.count} slovíček</span>
-          <span class="pill">${item.problemCount} problémových</span>
-          <span class="pill">${label}</span>
-        </div>
-      </div>
-      <div class="row-actions">
-        <button class="btn" type="button" data-action="practice-${actionPrefix}-short" data-name="${escapeHtml(item.name)}">Krátký trénink</button>
-        <button class="btn secondary" type="button" data-action="practice-${actionPrefix}" data-name="${escapeHtml(item.name)}">Všechna</button>
-        <button class="btn secondary" type="button" data-action="word-list" data-type="${type}" data-name="${escapeHtml(item.name)}">Seznam</button>
-      </div>
-    </article>
-  `;
-}
-
-function renderImport() {
-  const result = state.importResult;
-  return `
-    ${header("Import")}
-    <section class="stack">
-      <div class="panel stack">
-        <div class="import-help">
-          <strong>Import na tomto zařízení</strong>
-          <p class="muted">Vložená slovíčka se uloží jen tady. Nepravidelná slovesa už jsou v aplikaci napevno, běžné lekce vkládej jako CSV z GPT.</p>
-        </div>
-        <textarea class="textarea" id="importText" spellcheck="false" placeholder="${escapeHtml(IMPORT_TEMPLATE)}">${escapeHtml(state.importText)}</textarea>
-      </div>
-      <button class="btn" type="button" data-action="do-import">Importovat</button>
-      <button class="btn secondary" type="button" data-action="gpt-prompt">Zobrazit prompt pro GPT</button>
-      ${result ? renderImportResult(result) : ""}
-    </section>
-  `;
-}
-
-function renderGptPrompt() {
-  return `
-    ${header("Prompt pro GPT")}
-    <section class="stack">
-      <div class="notice">
-        Tenhle text vlož do GPT spolu se svými poznámkami. Výsledek potom zkopíruj do obrazovky Import.
-      </div>
-      <textarea class="textarea prompt-box" id="gptPromptText" readonly>${escapeHtml(GPT_IMPORT_PROMPT)}</textarea>
-      <button class="btn" type="button" data-action="copy-gpt-prompt">Kopírovat prompt</button>
-      <button class="btn secondary" type="button" data-action="import">Přejít na Import</button>
-    </section>
-  `;
-}
-
-function renderListenPrompt() {
-  return `
-    ${header("Prompt pro poslech")}
-    <section class="stack">
-      <div class="notice">
-        Tenhle prompt použij v GPT, když chceš připravit věty k poslechu. Výsledek vlož do obrazovky Vlastní poslech.
-      </div>
-      <textarea class="textarea prompt-box" id="listenPromptText" readonly>${escapeHtml(GPT_LISTEN_PROMPT)}</textarea>
-      <button class="btn" type="button" data-action="copy-listen-prompt">Kopírovat prompt</button>
-      <button class="btn secondary" type="button" data-action="custom-listen">Přejít na Vlastní poslech</button>
-    </section>
-  `;
-}
-
-function renderImportResult(result) {
-  const errors = result.errors || [];
-  return `
-    <div class="notice ${errors.length ? "danger" : "success"}">
-      <strong>Přidáno: ${result.added} · Sloučeno: ${result.merged}</strong>
-      ${errors.length ? `
-        <p>Chybné řádky:</p>
-        <ul class="error-list">
-          ${errors.map((error) => `<li>Řádek ${error.line}: ${escapeHtml(error.message)} <span class="muted">${escapeHtml(error.text)}</span></li>`).join("")}
-        </ul>
-      ` : `<p>Import proběhl v pořádku.</p>`}
-    </div>
-  `;
-}
-
-function renderWordList() {
-  const name = state.params.name;
-  const type = state.params.type || "deck";
-  const words = type === "tag" ? getWordsForTag(name) : getWordsForDeck(name);
-
-  return `
-    ${header(name || "Seznam")}
-    <section class="stack">
-      ${words.map(renderWordRow).join("") || `<div class="empty-state">Tady zatím nejsou žádná slovíčka.</div>`}
-    </section>
-  `;
-}
-
-function renderWordRow(word) {
-  return `
-    <article class="word-row">
-      <div>
-        <h2>${escapeHtml(word.en)}</h2>
-        <p><strong>${escapeHtml(word.cz)}</strong> ${word.pronounce ? `<span class="muted">[${escapeHtml(word.pronounce)}]</span>` : ""}</p>
-        ${word.example ? `<p class="muted">${escapeHtml(word.example)}</p>` : ""}
-        ${word.note ? `<p class="muted">${escapeHtml(word.note)}</p>` : ""}
-        <div class="row-meta">
-          ${getDeckNames(word).map((deck) => `<span class="pill">Lekce: ${escapeHtml(deck)}</span>`).join("")}
-          ${word.tags.map((tag) => `<span class="pill">#${escapeHtml(tag)}</span>`).join("")}
-          <span class="pill">${word.mistakes} chyb</span>
-          <span class="pill">${word.correct} správně</span>
-          <span class="pill">${word.seenCount ? `${word.seenCount}× procvičeno` : "ještě neprocvičeno"}</span>
-        </div>
-      </div>
-      <button class="btn danger" type="button" data-action="delete-word" data-id="${escapeHtml(word.id)}">Smazat slovíčko</button>
-    </article>
-  `;
-}
-
-function createPractice(words, label, source, mode = "en-cz", restart = {}) {
-  return {
-    label,
-    source,
-    mode,
-    queue: shuffle(words.map((word) => word.id)),
-    total: words.length,
-    roundMistakes: 0,
-    flipped: false,
-    done: false,
-    restart,
-  };
-}
-
-function shuffle(items) {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
-function getCurrentPracticeWord() {
-  return state.words.find((word) => word.id === state.practice?.queue[0]);
-}
-
-function renderPractice() {
-  const practice = state.practice;
-  if (!practice) return `${header("Procvičování")}<div class="empty-state">Procvičování není spuštěné.</div>`;
-
-  if (practice.done) {
-    return `
-      ${header("Hotovo")}
-      <section class="stack">
-        <div class="summary-card">
-          <h2>Hotovo</h2>
-          <p>Procvičeno slovíček: <strong>${practice.total}</strong></p>
-          <p>Chyb v tomto kole: <strong>${practice.roundMistakes}</strong></p>
-        </div>
-        <button class="btn" type="button" data-action="restart-practice">Spustit znovu</button>
-      </section>
-    `;
-  }
-
-  const word = getCurrentPracticeWord();
-  if (!word) return `${header("Procvičování")}<div class="empty-state">Slovíčko se nepodařilo najít.</div>`;
-
-  const isReverse = practice.mode === "cz-en";
-  const frontMain = isReverse ? word.cz : word.en;
-  const frontSub = isReverse ? "" : bracketPronounce(word.pronounce);
-  const backMain = isReverse ? word.en : word.cz;
-  const backSub = isReverse ? bracketPronounce(word.pronounce) : word.example;
-  const detail = isReverse ? [word.example, word.note].filter(Boolean).join(" ") : word.note;
-
-  return `
-    ${header(practice.label)}
-    <section class="practice-head">
-      <div class="progress-line">
-        <span>Zbývá ${practice.queue.length} z ${practice.total}</span>
-        <span>Chyby v kole: ${practice.roundMistakes}</span>
-      </div>
-      <div class="mode-toggle" role="group" aria-label="Režim procvičování">
-        <button type="button" class="${practice.mode === "en-cz" ? "active" : ""}" data-action="set-mode" data-mode="en-cz">EN → CZ</button>
-        <button type="button" class="${practice.mode === "cz-en" ? "active" : ""}" data-action="set-mode" data-mode="cz-en">CZ → EN</button>
-      </div>
-    </section>
-    <button class="flashcard" type="button" data-action="flip-card" aria-label="Otočit kartu">
-      <p class="card-main">${escapeHtml(practice.flipped ? backMain : frontMain)}</p>
-      ${practice.flipped
-        ? `${backSub ? `<p class="card-sub">${escapeHtml(backSub)}</p>` : ""}${detail ? `<p class="card-detail">${escapeHtml(detail)}</p>` : ""}`
-        : `${frontSub ? `<p class="card-sub">${escapeHtml(frontSub)}</p>` : ""}`
-      }
-    </button>
-    <div class="practice-actions">
-      <button class="btn secondary" type="button" data-action="speak-word">🔊 Slovo</button>
-      <button class="btn secondary" type="button" data-action="speak-example" ${word.example ? "" : "disabled"}>🔊 Věta</button>
-      <button class="btn danger" type="button" data-action="mark-wrong">❌ Neumím</button>
-      <button class="btn success" type="button" data-action="mark-right">✅ Umím</button>
-    </div>
-  `;
-}
-
-function bracketPronounce(pronounce) {
-  return pronounce ? `[${pronounce}]` : "";
-}
-
-function renderProblems() {
-  const words = getProblemWords();
-  return `
-    ${header("Problémová slovíčka")}
-    <section class="stack">
-      <button class="btn" type="button" data-action="practice-problems" ${words.length ? "" : "disabled"}>Procvičovat problémová</button>
-      ${words.map(renderWordRow).join("") || `<div class="empty-state">Žádná problémová slovíčka.</div>`}
-    </section>
-  `;
-}
-
-function renderExport() {
-  return `
-    ${header("Export/Záloha")}
-    <section class="stack">
-      <div class="notice">
-        Tohle je záloha slovíček z tohoto zařízení. Pokud chceš slovíčka dostat do telefonu, zkopíruj text níže a vlož ho v telefonu do Importu.
-      </div>
-      <textarea class="textarea export-box" id="exportText" readonly>${escapeHtml(toCsv(state.words))}</textarea>
-      <button class="btn" type="button" data-action="copy-export">Kopírovat do schránky</button>
-      <button class="btn secondary" type="button" data-action="download-export">Stáhnout zálohu</button>
-    </section>
-  `;
-}
-
-function renderAudio() {
-  return `
-    ${header("Poslech")}
-    <section class="stack">
-      <div class="notice">
-        Dvě poslechové stopy pro past simple. Každá věta zazní dvakrát anglicky, potom je pauza a český překlad.
-      </div>
-      <button class="btn" type="button" data-action="custom-listen">Vlastní poslech z textu</button>
-      <article class="audio-card">
-        <h2>Nepravidelná slovesa 1</h2>
-        <p class="muted">be až find · přibližně 7 minut</p>
-        <audio controls preload="metadata" src="audio/nepravidelna-slovesa-1.wav"></audio>
-        <a class="btn secondary" href="audio/nepravidelna-slovesa-1.wav" target="_blank" rel="noopener">Otevřít stopu</a>
-      </article>
-      <article class="audio-card">
-        <h2>Nepravidelná slovesa 2</h2>
-        <p class="muted">get až write · přibližně 7 minut</p>
-        <audio controls preload="metadata" src="audio/nepravidelna-slovesa-2.wav"></audio>
-        <a class="btn secondary" href="audio/nepravidelna-slovesa-2.wav" target="_blank" rel="noopener">Otevřít stopu</a>
-      </article>
-    </section>
-  `;
-}
-
-function renderCustomListen() {
-  const listen = state.customListen;
-  const parsed = listen.parsed || parseListenText(listen.text);
-  const current = parsed.items[listen.index];
-  const progress = parsed.items.length ? `${Math.min(listen.index + 1, parsed.items.length)} / ${parsed.items.length}` : "0 / 0";
-
-  return `
-    ${header("Vlastní poslech")}
-    <section class="stack">
-      <div class="notice">
-        Vlož text z GPT ve formátu EN/CZ. Aplikace bude číst anglickou větu, pauzu, anglickou větu znovu, delší pauzu a český překlad.
-      </div>
-      <div class="panel stack">
-        <div class="import-help">
-          <strong>${escapeHtml(parsed.title)}</strong>
-          <p class="muted">${parsed.items.length} vět · opakování EN: ${parsed.repeat}× · pauzy ${parsed.pauseAfterEnglish}s / ${parsed.pauseBeforeCzech}s</p>
-        </div>
-        <textarea class="textarea listen-box" id="customListenText" spellcheck="false" placeholder="${escapeHtml(LISTEN_TEMPLATE)}">${escapeHtml(listen.text)}</textarea>
-      </div>
-      <div class="listen-controls">
-        <button class="btn" type="button" data-action="load-custom-listen">Načíst poslech</button>
-        <button class="btn secondary" type="button" data-action="listen-prompt">Prompt pro GPT</button>
-      </div>
-      <div class="listen-controls">
-        <button class="btn success" type="button" data-action="play-custom-listen" ${parsed.items.length && !listen.playing ? "" : "disabled"}>Přehrát</button>
-        <button class="btn danger" type="button" data-action="stop-custom-listen" ${listen.playing ? "" : "disabled"}>Zastavit</button>
-        <button class="btn secondary" type="button" data-action="restart-custom-listen" ${parsed.items.length ? "" : "disabled"}>Od začátku</button>
-        <button class="btn secondary" type="button" data-action="next-custom-listen" ${parsed.items.length ? "" : "disabled"}>Další věta</button>
-      </div>
-      <article class="listen-status">
-        <div class="row-meta">
-          <span class="pill">${listen.playing ? "Přehrávám" : "Zastaveno"}</span>
-          <span class="pill">${progress}</span>
-        </div>
-        <h2>${escapeHtml(listen.currentStep || "Připraveno")}</h2>
-        ${current ? `
-          ${current.wordEn ? `<p class="muted">${escapeHtml(current.wordEn)} = ${escapeHtml(current.wordCz)}</p>` : ""}
-          <p><strong>EN:</strong> ${escapeHtml(current.en)}</p>
-          <p><strong>CZ:</strong> ${escapeHtml(displayListenText(current.cz))}</p>
-        ` : `<p class="muted">Načti text a spusť poslech.</p>`}
-      </article>
-      ${parsed.errors.length ? `
-        <div class="notice danger">
-          <strong>Našel jsem chyby ve formátu:</strong>
-          <ul class="error-list">
-            ${parsed.errors.map((error) => `<li>Řádek ${escapeHtml(error.line)}: ${escapeHtml(error.message)} <span class="muted">${escapeHtml(error.text)}</span></li>`).join("")}
-          </ul>
-        </div>
-      ` : ""}
-    </section>
-  `;
-}
-
-function toCsv(words) {
-  const rows = ["deck;tags;en;pronounce;cz;example;note"];
-  words.forEach((word) => {
-    rows.push([
-      getDeckNames(word).join(", "),
-      word.tags.join(", "),
-      word.en,
-      word.pronounce,
-      word.cz,
-      word.example,
-      word.note,
-    ].map(csvCell).join(";"));
-  });
-  return rows.join("\n");
-}
-
-function csvCell(value) {
-  const text = String(value ?? "");
-  return /[;\n"]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
-}
-
-function speak(text) {
-  if (!("speechSynthesis" in window) || !text) return;
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "en-US";
-  speechSynthesis.speak(utterance);
-}
-
-function speakText(text, lang, runId) {
-  return new Promise((resolve) => {
-    if (!("speechSynthesis" in window) || !text || runId !== listenRunId) {
-      resolve();
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang;
-    utterance.rate = 0.92;
-    utterance.onend = resolve;
-    utterance.onerror = resolve;
-    speechSynthesis.speak(utterance);
-  });
-}
-
-async function speakMixedText(text, defaultLang, runId) {
-  const parts = splitMixedLanguageText(text, defaultLang);
-  for (const part of parts) {
-    if (runId !== listenRunId || !state.customListen.playing) break;
-    await speakText(part.text, part.lang, runId);
-  }
-}
-
-function splitMixedLanguageText(text, defaultLang) {
-  const parts = [];
-  const pattern = /\[EN:([^\]]+)\]/gi;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = pattern.exec(text)) !== null) {
-    const before = text.slice(lastIndex, match.index).trim();
-    if (before) parts.push({ text: before, lang: defaultLang });
-
-    const english = normalize(match[1]);
-    if (english) parts.push({ text: english, lang: "en-US" });
-    lastIndex = pattern.lastIndex;
-  }
-
-  const after = text.slice(lastIndex).trim();
-  if (after) parts.push({ text: after, lang: defaultLang });
-  return parts.length ? parts : [{ text, lang: defaultLang }];
-}
-
-function displayListenText(text) {
-  return String(text || "").replace(/\[EN:([^\]]+)\]/gi, "$1");
-}
-
-function waitForListen(seconds, runId) {
-  return new Promise((resolve) => {
-    if (!seconds || runId !== listenRunId) {
-      resolve();
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      listenTimers.delete(timer);
-      resolve();
-    }, seconds * 1000);
-    listenTimers.add(timer);
-  });
-}
-
-function clearListenTimers() {
-  listenTimers.forEach((timer) => window.clearTimeout(timer));
-  listenTimers.clear();
-}
-
-function importWords() {
-  const textarea = document.querySelector("#importText");
-  state.importText = textarea ? textarea.value : state.importText;
-  const parsed = parseImport(state.importText);
-  const merged = mergeWords(state.words, parsed.words);
-  state.words = merged.words;
-  saveWords();
-  state.importResult = { added: merged.added, merged: merged.merged, errors: parsed.errors };
-  if (merged.added || merged.merged) state.importText = "";
-  render();
-}
-
-function loadCustomListen() {
-  stopCustomListen(false);
-  const textarea = document.querySelector("#customListenText");
-  state.customListen.text = textarea ? textarea.value : state.customListen.text;
-  state.customListen.parsed = parseListenText(state.customListen.text);
-  state.customListen.index = 0;
-  state.customListen.currentStep = state.customListen.parsed.items.length ? "Připraveno" : "V textu nejsou žádné věty.";
-  state.customListen.playing = false;
-  saveListenText(state.customListen.text);
-  render();
-}
-
-async function playCustomListen() {
-  if (!("speechSynthesis" in window)) {
-    alert("Tento prohlížeč neumí hlasové čtení.");
-    return;
-  }
-
-  const textarea = document.querySelector("#customListenText");
-  if (textarea) {
-    state.customListen.text = textarea.value;
-    saveListenText(state.customListen.text);
-  }
-
-  const parsed = parseListenText(state.customListen.text);
-  state.customListen.parsed = parsed;
-  if (!parsed.items.length) {
-    state.customListen.currentStep = "V textu nejsou žádné věty.";
-    render();
-    return;
-  }
-
-  if (state.customListen.index >= parsed.items.length) state.customListen.index = 0;
-  clearListenTimers();
-  speechSynthesis.cancel();
-  const runId = listenRunId + 1;
-  listenRunId = runId;
-  state.customListen.playing = true;
-  render();
-
-  while (state.customListen.playing && runId === listenRunId && state.customListen.index < parsed.items.length) {
-    const item = parsed.items[state.customListen.index];
-    state.customListen.currentStep = item.wordEn ? `${item.wordEn} = ${item.wordCz}` : `Věta ${state.customListen.index + 1}`;
-    render();
-
-    if (item.wordEn) await speakText(item.wordEn, "en-US", runId);
-    if (!state.customListen.playing || runId !== listenRunId) break;
-    if (item.wordCz) await speakText(item.wordCz, "cs-CZ", runId);
-    if (!state.customListen.playing || runId !== listenRunId) break;
-
-    for (let repeat = 1; repeat <= parsed.repeat; repeat += 1) {
-      state.customListen.currentStep = `EN ${repeat}/${parsed.repeat}: ${item.en}`;
-      render();
-      await speakText(item.en, "en-US", runId);
-      if (!state.customListen.playing || runId !== listenRunId) break;
-      await waitForListen(repeat < parsed.repeat ? parsed.pauseAfterEnglish : parsed.pauseBeforeCzech, runId);
-    }
-
-    if (!state.customListen.playing || runId !== listenRunId) break;
-    state.customListen.currentStep = `CZ: ${item.cz}`;
-    render();
-    await speakMixedText(item.cz, "cs-CZ", runId);
-    if (!state.customListen.playing || runId !== listenRunId) break;
-    await waitForListen(1, runId);
-    state.customListen.index += 1;
-  }
-
-  if (runId === listenRunId) {
-    state.customListen.playing = false;
-    state.customListen.currentStep = state.customListen.index >= parsed.items.length ? "Hotovo" : "Zastaveno";
-    render();
-  }
-}
-
-function stopCustomListen(shouldRender = true) {
-  listenRunId += 1;
-  clearListenTimers();
-  state.customListen.playing = false;
-  if ("speechSynthesis" in window) speechSynthesis.cancel();
-  if (state.customListen.currentStep !== "Hotovo") state.customListen.currentStep = "Zastaveno";
-  if (shouldRender) render();
-}
-
-function restartCustomListen() {
-  stopCustomListen(false);
-  state.customListen.index = 0;
-  state.customListen.currentStep = "Připraveno";
-  render();
-}
-
-function nextCustomListen() {
-  stopCustomListen(false);
-  const parsed = state.customListen.parsed || parseListenText(state.customListen.text);
-  state.customListen.parsed = parsed;
-  if (parsed.items.length) {
-    state.customListen.index = Math.min(state.customListen.index + 1, parsed.items.length - 1);
-    state.customListen.currentStep = "Připraveno";
-  }
-  render();
-}
-
-function deleteAll() {
-  if (!confirm("Opravdu smazat všechna uložená slovíčka? Pevná nepravidelná slovesa se znovu připraví při dalším načtení.")) return;
-  state.words = mergeWords([], buildIrregularVerbs()).words;
-  state.practice = null;
-  saveWords();
-  navigate("home");
-}
-
-function deleteWord(id) {
-  if (!confirm("Smazat toto slovíčko?")) return;
-  state.words = state.words.filter((word) => word.id !== id);
-  saveWords();
-  render();
-}
-
-function startPractice(words, label, source, restart) {
-  if (!words.length) {
-    alert("Tady zatím nejsou žádná slovíčka k procvičování.");
-    return;
-  }
-
-  state.practice = createPractice(words, label, source, state.practice?.mode || "en-cz", restart);
-  navigate("practice");
-}
-
-function startSmartPractice() {
-  const words = selectSmartWords(state.words, SMART_LIMIT);
-  startPractice(words, `Chytrý trénink (${words.length})`, "smart", { type: "smart" });
-}
-
-function startDeckPractice(deck, limit = null) {
-  const allWords = getWordsForDeck(deck);
-  const words = limit ? selectSmartWords(allWords, limit) : allWords;
-  const label = limit ? `${deck} · ${words.length} slovíček` : deck;
-  startPractice(words, label, limit ? "deck-short" : "deck", { type: "deck", name: deck, limit });
-}
-
-function startTagPractice(tag, limit = null) {
-  const allWords = getWordsForTag(tag);
-  const words = limit ? selectSmartWords(allWords, limit) : allWords;
-  const label = limit ? `#${tag} · ${words.length} slovíček` : tag;
-  startPractice(words, label, limit ? "tag-short" : "tag", { type: "tag", name: tag, limit });
-}
-
-function startProblemPractice() {
-  const words = getProblemWords();
-  startPractice(words, "Problémová slovíčka", "problems", { type: "problems" });
-}
-
-function restartPractice() {
-  if (!state.practice) return;
-  const restart = state.practice.restart || {};
-  if (restart.type === "smart") return startSmartPractice();
-  if (restart.type === "tag") return startTagPractice(restart.name, restart.limit || null);
-  if (restart.type === "problems") return startProblemPractice();
-  if (restart.type === "deck") return startDeckPractice(restart.name, restart.limit || null);
-  startSmartPractice();
-}
-
-function markCurrent(isCorrect) {
-  const practice = state.practice;
-  const word = getCurrentPracticeWord();
-  if (!practice || !word) return;
-  const now = new Date().toISOString();
-
-  word.seenCount = Number(word.seenCount || 0) + 1;
-  word.lastPracticedAt = now;
-
-  if (isCorrect) {
-    word.correct = Number(word.correct || 0) + 1;
-    word.streak = Number(word.streak || 0) + 1;
-    practice.queue.shift();
-  } else {
-    word.mistakes = Number(word.mistakes || 0) + 1;
-    word.streak = 0;
-    word.lastWrongAt = now;
-    practice.roundMistakes += 1;
-    practice.queue.push(practice.queue.shift());
-  }
-
-  practice.flipped = false;
-  practice.done = practice.queue.length === 0;
-  saveWords();
-  render();
-}
-
-async function copyExport() {
-  const text = toCsv(state.words);
-  try {
-    await navigator.clipboard.writeText(text);
-    alert("Záloha je zkopírovaná do schránky.");
-  } catch (error) {
-    const box = document.querySelector("#exportText");
-    if (box) {
-      box.focus();
-      box.select();
-    }
-    alert("Kopírování se nepovedlo. Text je označený, můžete ho zkopírovat ručně.");
-  }
-}
-
-async function copyGptPrompt() {
-  try {
-    await navigator.clipboard.writeText(GPT_IMPORT_PROMPT);
-    alert("Prompt pro GPT je zkopírovaný.");
-  } catch (error) {
-    const box = document.querySelector("#gptPromptText");
-    if (box) {
-      box.focus();
-      box.select();
-    }
-    alert("Kopírování se nepovedlo. Text je označený, můžete ho zkopírovat ručně.");
-  }
-}
-
-async function copyListenPrompt() {
-  try {
-    await navigator.clipboard.writeText(GPT_LISTEN_PROMPT);
-    alert("Prompt pro poslech je zkopírovaný.");
-  } catch (error) {
-    const box = document.querySelector("#listenPromptText");
-    if (box) {
-      box.focus();
-      box.select();
-    }
-    alert("Kopírování se nepovedlo. Text je označený, můžete ho zkopírovat ručně.");
-  }
-}
-
-function downloadExport() {
-  const blob = new Blob([toCsv(state.words)], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `slovicka-zaloha-${new Date().toISOString().slice(0, 10)}.csv`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-app.addEventListener("click", (event) => {
-  const target = event.target.closest("[data-action]");
-  if (!target) return;
-
-  const action = target.dataset.action;
-  const name = target.dataset.name || target.dataset.deck;
-  const id = target.dataset.id;
-
-  if (action === "back") goBack();
-  if (action === "decks") navigate("decks");
-  if (action === "tags") navigate("tags");
-  if (action === "import") navigate("import");
-  if (action === "gpt-prompt") navigate("gptPrompt");
-  if (action === "audio") navigate("audio");
-  if (action === "custom-listen") navigate("customListen");
-  if (action === "listen-prompt") navigate("listenPrompt");
-  if (action === "smart-practice") startSmartPractice();
-  if (action === "practice-irregular") startDeckPractice("Nepravidelná slovesa");
-  if (action === "problems") navigate("problems");
-  if (action === "export") navigate("export");
-  if (action === "delete-all") deleteAll();
-  if (action === "do-import") importWords();
-  if (action === "load-custom-listen") loadCustomListen();
-  if (action === "play-custom-listen") playCustomListen();
-  if (action === "stop-custom-listen") stopCustomListen();
-  if (action === "restart-custom-listen") restartCustomListen();
-  if (action === "next-custom-listen") nextCustomListen();
-  if (action === "word-list") navigate("wordList", { type: target.dataset.type || "deck", name });
-  if (action === "delete-word") deleteWord(id);
-  if (action === "practice-deck") startDeckPractice(name);
-  if (action === "practice-deck-short") startDeckPractice(name, SMART_LIMIT);
-  if (action === "practice-tag") startTagPractice(name);
-  if (action === "practice-tag-short") startTagPractice(name, SMART_LIMIT);
-  if (action === "practice-problems") startProblemPractice();
-  if (action === "restart-practice") restartPractice();
-  if (action === "flip-card") {
-    state.practice.flipped = !state.practice.flipped;
-    render();
-  }
-  if (action === "set-mode") {
-    state.practice.mode = target.dataset.mode;
-    state.practice.flipped = false;
-    render();
-  }
-  if (action === "speak-word") speak(getCurrentPracticeWord()?.en);
-  if (action === "speak-example") speak(getCurrentPracticeWord()?.example);
-  if (action === "mark-wrong") markCurrent(false);
-  if (action === "mark-right") markCurrent(true);
-  if (action === "copy-export") copyExport();
-  if (action === "copy-gpt-prompt") copyGptPrompt();
-  if (action === "copy-listen-prompt") copyListenPrompt();
-  if (action === "download-export") downloadExport();
+function createId(){ return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`; }
+function normalize(v){ return String(v ?? "").trim(); }
+function escapeHtml(v){ return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+function uniqueList(values){ const seen=new Set(); return values.map(normalize).filter(Boolean).filter(v=>{const k=v.toLocaleLowerCase("cs-CZ"); if(seen.has(k)) return false; seen.add(k); return true;}); }
+function splitTags(v){ return Array.isArray(v) ? v : String(v||"").split(",").map(normalize).filter(Boolean); }
+function shuffle(items){ const a=[...items]; for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function loadWords(){ let words=[]; let presetVersion=0; try{ const saved=localStorage.getItem(STORAGE_KEY); if(saved){ const p=JSON.parse(saved); words=Array.isArray(p.words)?p.words:[]; presetVersion=Number(p.presetVersion||0); } }catch(e){ console.warn(e); } words=normalizeWords(words); if(presetVersion<PRESET_VERSION) words=mergeWords(words, buildIrregularVerbs()).words; saveWords(words); return words; }
+function saveWords(words=state.words){ localStorage.setItem(STORAGE_KEY, JSON.stringify({presetVersion:PRESET_VERSION, words:normalizeWords(words)})); }
+function loadListenText(){ try{return localStorage.getItem(LISTEN_STORAGE_KEY)||LISTEN_TEMPLATE;}catch(e){return LISTEN_TEMPLATE;} }
+function saveListenText(text){ try{localStorage.setItem(LISTEN_STORAGE_KEY,text);}catch(e){} }
+
+function makeIrregularWord(en, pronounce, cz, example, note, tags){ return {id:createId(), deck:"Nepravidelná slovesa", decks:["Nepravidelná slovesa"], tags, en, pronounce, cz, example, note, mistakes:0, correct:0, seenCount:0, streak:0, lastPracticedAt:"", lastWrongAt:"", createdAt:new Date().toISOString()}; }
+function buildIrregularVerbs(){ const words=[]; IRREGULAR_VERBS.forEach(([base,basePr,past,pastPr,cz,baseEx,pastEx,part])=>{ words.push(makeIrregularWord(base,basePr,cz,baseEx,`past simple: ${past}, past participle: ${part}`,["slovesa","infinitiv"])); words.push(makeIrregularWord(past,pastPr,`${cz} - minulý čas`,pastEx,`past simple od slovesa ${base}; past participle: ${part}`,["slovesa","past simple"])); }); return words; }
+function normalizeWords(words){ return words.map(w=>{ const deck=normalize(w.deck || w.decks?.[0] || "Bez lekce"); const decks=uniqueList([...(Array.isArray(w.decks)?w.decks:[]),deck]); return {id:w.id||createId(), deck, decks, tags:uniqueList(Array.isArray(w.tags)?w.tags:splitTags(w.tags)), en:normalize(w.en), pronounce:normalize(w.pronounce), cz:normalize(w.cz), example:normalize(w.example), note:normalize(w.note), mistakes:Number(w.mistakes||0), correct:Number(w.correct||0), seenCount:Number(w.seenCount||0), streak:Number(w.streak||0), lastPracticedAt:w.lastPracticedAt||"", lastWrongAt:w.lastWrongAt||"", createdAt:w.createdAt||new Date().toISOString()}; }).filter(w=>w.en&&w.cz); }
+function identityKey(w){ return `${w.en.toLocaleLowerCase("en-US")}::${w.cz.toLocaleLowerCase("cs-CZ")}`; }
+function mergeWords(existing,incoming){ const words=normalizeWords(existing); const index=new Map(words.map(w=>[identityKey(w),w])); let added=0, merged=0; normalizeWords(incoming).forEach(i=>{ const cur=index.get(identityKey(i)); if(!cur){words.push(i); index.set(identityKey(i),i); added++; return;} cur.decks=uniqueList([...cur.decks,...i.decks]); cur.deck=cur.decks[0]; cur.tags=uniqueList([...cur.tags,...i.tags]); cur.pronounce=cur.pronounce||i.pronounce; cur.example=cur.example||i.example; cur.note=uniqueList([cur.note,i.note]).join(" | "); merged++; }); return {words,added,merged}; }
+
+function getDeckNames(w){ return uniqueList(Array.isArray(w.decks)&&w.decks.length?w.decks:[w.deck]); }
+function getDecks(words=state.words){ const m=new Map(); words.forEach(w=>getDeckNames(w).forEach(n=>{ if(!m.has(n))m.set(n,{name:n,count:0,problemCount:0}); const d=m.get(n); d.count++; if(w.mistakes>0)d.problemCount++; })); return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,"cs")); }
+function getTags(words=state.words){ const m=new Map(); words.forEach(w=>w.tags.forEach(n=>{ if(!m.has(n))m.set(n,{name:n,count:0,problemCount:0}); const t=m.get(n); t.count++; if(w.mistakes>0)t.problemCount++; })); return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name,"cs")); }
+function getWordsForDeck(deck){ return state.words.filter(w=>getDeckNames(w).includes(deck)); }
+function getWordsForTag(tag){ return state.words.filter(w=>w.tags.includes(tag)); }
+function getProblemWords(){ return state.words.filter(w=>w.mistakes>0).sort((a,b)=>b.mistakes-a.mistakes||a.en.localeCompare(b.en)); }
+function daysSince(iso){ if(!iso)return 999; const t=new Date(iso).getTime(); return Number.isNaN(t)?999:Math.max(0,Math.floor((Date.now()-t)/86400000)); }
+function smartScore(w){ return (!w.seenCount?120:0)+w.mistakes*14-w.correct*2-w.streak*8+Math.min(daysSince(w.lastPracticedAt||w.createdAt),30)+(w.lastWrongAt?Math.max(0,18-daysSince(w.lastWrongAt)):0); }
+function selectSmartWords(words,limit=SMART_LIMIT){ return [...words].sort((a,b)=>smartScore(b)-smartScore(a)||a.en.localeCompare(b.en,"en")).slice(0,limit); }
+
+function navigate(view,params={}){ state.view=view; state.params=params; state.importResult=view==="import"?state.importResult:null; render(); }
+function goBack(){ if(state.view==="home")return; if(state.view==="irregularForms")return navigate("home"); if(state.view==="wordList")return navigate(state.params.type==="tag"?"tags":"decks"); if(state.view==="practice")return navigate("home"); if(state.view==="listenPrompt")return navigate("customListen"); navigate("home"); }
+function header(title,back=true){ return `<div class="topbar">${back?`<button class="back-button" type="button" data-action="back" aria-label="Zpět">‹</button>`:""}<h1>${escapeHtml(title)}</h1></div>`; }
+function render(){ const views={home:renderHome,decks:renderDecks,tags:renderTags,import:renderImport,wordList:renderWordList,practice:renderPractice,problems:renderProblems,export:renderExport,audio:renderAudio,gptPrompt:renderGptPrompt,customListen:renderCustomListen,listenPrompt:renderListenPrompt,irregularForms:renderIrregularForms}; app.innerHTML=(views[state.view]||renderHome)(); }
+
+function renderHome(){ const allCount=state.words.length, deckCount=getDecks().length, tagCount=getTags().length, problemCount=getProblemWords().length; return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid stats-grid-four" aria-label="Souhrn slovíček"><div class="stat"><strong>${allCount}</strong><span>slovíček</span></div><div class="stat"><strong>${deckCount}</strong><span>lekcí</span></div><div class="stat"><strong>${tagCount}</strong><span>štítků</span></div><div class="stat"><strong>${problemCount}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje jen nepravidelná slovesa. Ostatní lekce si přidávej importem z GPT přímo v telefonu.</div><div class="button-grid"><button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button><button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button><button class="btn secondary" type="button" data-action="tags">Štítky</button><button class="btn secondary" type="button" data-action="import">Import</button><button class="btn secondary" type="button" data-action="gpt-prompt">Prompt pro GPT</button><button class="btn secondary" type="button" data-action="audio">Poslech</button><button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button><button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button><button class="btn secondary" type="button" data-action="export">Export/Záloha</button><button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button></div></section>`; }
+function renderDecks(){ const decks=getDecks(); return `${header("Lekce")}<section class="stack">${decks.length?decks.map(d=>renderCollectionRow(d,"deck")).join(""):`<div class="empty-state">Zatím tu nejsou žádné lekce.</div>`}</section>`; }
+function renderTags(){ const tags=getTags(); return `${header("Štítky")}<section class="stack">${tags.length?tags.map(t=>renderCollectionRow(t,"tag")).join(""):`<div class="empty-state">Zatím tu nejsou žádné štítky.</div>`}</section>`; }
+function renderCollectionRow(item,type){ const p=type==="tag"?"tag":"deck"; return `<article class="deck-row"><div><h2>${escapeHtml(item.name)}</h2><div class="row-meta"><span class="pill">${item.count} slovíček</span><span class="pill">${item.problemCount} problémových</span></div></div><div class="row-actions"><button class="btn" type="button" data-action="practice-${p}-short" data-name="${escapeHtml(item.name)}">Krátký trénink</button><button class="btn secondary" type="button" data-action="practice-${p}" data-name="${escapeHtml(item.name)}">Všechna</button><button class="btn secondary" type="button" data-action="word-list" data-type="${type}" data-name="${escapeHtml(item.name)}">Seznam</button></div></article>`; }
+function renderWordList(){ const name=state.params.name, type=state.params.type||"deck", words=type==="tag"?getWordsForTag(name):getWordsForDeck(name); return `${header(name||"Seznam")}<section class="stack">${words.map(renderWordRow).join("")||`<div class="empty-state">Tady zatím nejsou žádná slovíčka.</div>`}</section>`; }
+function renderWordRow(w){ return `<article class="word-row"><div><h2>${escapeHtml(w.en)}</h2><p><strong>${escapeHtml(w.cz)}</strong> ${w.pronounce?`<span class="muted">[${escapeHtml(w.pronounce)}]</span>`:""}</p>${w.example?`<p class="muted">${escapeHtml(w.example)}</p>`:""}${w.note?`<p class="muted">${escapeHtml(w.note)}</p>`:""}<div class="row-meta">${getDeckNames(w).map(d=>`<span class="pill">Lekce: ${escapeHtml(d)}</span>`).join("")}${w.tags.map(t=>`<span class="pill">#${escapeHtml(t)}</span>`).join("")}<span class="pill">${w.mistakes} chyb</span><span class="pill">${w.correct} správně</span></div></div><button class="btn danger" type="button" data-action="delete-word" data-id="${escapeHtml(w.id)}">Smazat slovíčko</button></article>`; }
+
+function createPractice(words,label,source,mode="en-cz",restart={}){ return {label,source,mode,queue:shuffle(words.map(w=>w.id)),total:words.length,roundMistakes:0,flipped:false,done:false,restart}; }
+function getCurrentPracticeWord(){ return state.words.find(w=>w.id===state.practice?.queue[0]); }
+function startPractice(words,label,source,restart){ if(!words.length){alert("Tady zatím nejsou žádná slovíčka k procvičování."); return;} state.practice=createPractice(words,label,source,state.practice?.mode||"en-cz",restart); navigate("practice"); }
+function startSmartPractice(){ const words=selectSmartWords(state.words,SMART_LIMIT); startPractice(words,`Chytrý trénink (${words.length})`,"smart",{type:"smart"}); }
+function startDeckPractice(deck,limit=null){ const all=getWordsForDeck(deck), words=limit?selectSmartWords(all,limit):all; startPractice(words,limit?`${deck} · ${words.length} slovíček`:deck,limit?"deck-short":"deck",{type:"deck",name:deck,limit}); }
+function startTagPractice(tag,limit=null){ const all=getWordsForTag(tag), words=limit?selectSmartWords(all,limit):all; startPractice(words,limit?`#${tag} · ${words.length} slovíček`:tag,limit?"tag-short":"tag",{type:"tag",name:tag,limit}); }
+function startProblemPractice(){ startPractice(getProblemWords(),"Problémová slovíčka","problems",{type:"problems"}); }
+function restartPractice(){ const r=state.practice?.restart||{}; if(r.type==="smart")return startSmartPractice(); if(r.type==="tag")return startTagPractice(r.name,r.limit||null); if(r.type==="problems")return startProblemPractice(); if(r.type==="deck")return startDeckPractice(r.name,r.limit||null); startSmartPractice(); }
+function renderPractice(){ const p=state.practice; if(!p)return `${header("Procvičování")}<div class="empty-state">Procvičování není spuštěné.</div>`; if(p.done)return `${header("Hotovo")}<section class="stack"><div class="summary-card"><h2>Hotovo</h2><p>Procvičeno slovíček: <strong>${p.total}</strong></p><p>Chyb v tomto kole: <strong>${p.roundMistakes}</strong></p></div><button class="btn" type="button" data-action="restart-practice">Spustit znovu</button></section>`; const w=getCurrentPracticeWord(); if(!w)return `${header("Procvičování")}<div class="empty-state">Slovíčko se nepodařilo najít.</div>`; const rev=p.mode==="cz-en", front=rev?w.cz:w.en, back=rev?w.en:w.cz, sub=rev?(w.pronounce?`[${w.pronounce}]`:""):w.example; return `${header(p.label)}<section class="practice-head"><div class="progress-line"><span>Zbývá ${p.queue.length} z ${p.total}</span><span>Chyby v kole: ${p.roundMistakes}</span></div><div class="mode-toggle"><button type="button" class="${p.mode==="en-cz"?"active":""}" data-action="set-mode" data-mode="en-cz">EN → CZ</button><button type="button" class="${p.mode==="cz-en"?"active":""}" data-action="set-mode" data-mode="cz-en">CZ → EN</button></div></section><button class="flashcard" type="button" data-action="flip-card"><p class="card-main">${escapeHtml(p.flipped?back:front)}</p>${p.flipped&&sub?`<p class="card-sub">${escapeHtml(sub)}</p>`:""}${p.flipped&&w.note?`<p class="card-detail">${escapeHtml(w.note)}</p>`:""}</button><div class="practice-actions"><button class="btn secondary" data-action="speak-word">🔊 Slovo</button><button class="btn secondary" data-action="speak-example" ${w.example?"":"disabled"}>🔊 Věta</button><button class="btn danger" data-action="mark-wrong">❌ Neumím</button><button class="btn success" data-action="mark-right">✅ Umím</button></div>`; }
+function markCurrent(ok){ const p=state.practice,w=getCurrentPracticeWord(); if(!p||!w)return; const now=new Date().toISOString(); w.seenCount++; w.lastPracticedAt=now; if(ok){w.correct++; w.streak++; p.queue.shift();}else{w.mistakes++; w.streak=0; w.lastWrongAt=now; p.roundMistakes++; p.queue.push(p.queue.shift());} p.flipped=false; p.done=p.queue.length===0; saveWords(); render(); }
+
+function startIrregularFormsPractice(){ state.irregularFormsPractice={queue:shuffle(IRREGULAR_VERBS.map(v=>({base:v[0],past:v[2],cz:v[4],participle:v[7]}))),index:0,checked:false,result:null,correctCount:0,wrongCount:0}; navigate("irregularForms"); }
+function getCurrentIrregularFormVerb(){ const p=state.irregularFormsPractice; return (!p||!p.queue.length)?null:p.queue[p.index]; }
+function cleanFormAnswer(v){ return normalize(v).toLocaleLowerCase("en-US").replace(/\s*\/\s*/g,"/").replace(/\s+/g," "); }
+function formAnswerMatches(user,correct){ const u=cleanFormAnswer(user), c=cleanFormAnswer(correct); if(!u)return false; if(u===c)return true; return c.includes("/") && c.split("/").includes(u); }
+function renderIrregularForms(){ const p=state.irregularFormsPractice, v=getCurrentIrregularFormVerb(); if(!p||!v)return `${header("Nepravidelná slovesa")}<section class="stack"><div class="empty-state">Trénink není spuštěný.</div><button class="btn" type="button" data-action="start-irregular-forms">Spustit trénink</button></section>`; const r=p.result, finished=p.index>=p.queue.length-1; const res=(ok,text)=>r?`<div class="answer-result ${ok?"answer-ok":"answer-bad"}">${ok?"OK":"Špatně"}: ${escapeHtml(text)}</div>`:""; return `${header("Nepravidelná slovesa")}<section class="stack"><div class="notice">Napiš všechny tři tvary slovesa podle českého významu.</div><article class="summary-card"><div class="row-meta"><span class="pill">Sloveso ${p.index+1} / ${p.queue.length}</span><span class="pill">Správně: ${p.correctCount}</span><span class="pill">Chyby: ${p.wrongCount}</span></div><h2 class="cz-word-big">${escapeHtml(v.cz)}</h2><div class="forms-grid"><label><span>Infinitiv</span><input class="answer-input" id="irregularBase" type="text" autocomplete="off" ${p.checked?"disabled":""}>${res(r?.baseCorrect,v.base)}</label><label><span>Past simple</span><input class="answer-input" id="irregularPast" type="text" autocomplete="off" ${p.checked?"disabled":""}>${res(r?.pastCorrect,v.past)}</label><label><span>Past participle</span><input class="answer-input" id="irregularParticiple" type="text" autocomplete="off" ${p.checked?"disabled":""}>${res(r?.participleCorrect,v.participle)}</label></div></article>${r?`<div class="notice ${r.allCorrect?"success":"danger"}"><strong>${r.allCorrect?"Správně ✅":"Něco je špatně ❌"}</strong><p>Správné tvary: <strong>${escapeHtml(v.base)}</strong> — <strong>${escapeHtml(v.past)}</strong> — <strong>${escapeHtml(v.participle)}</strong></p></div>`:""}<div class="practice-actions"><button class="btn success" type="button" data-action="check-irregular-forms" ${p.checked?"disabled":""}>Zkontrolovat</button><button class="btn secondary" type="button" data-action="next-irregular-form" ${p.checked?"":"disabled"}>${finished?"Dokončit":"Další"}</button><button class="btn danger wide" type="button" data-action="restart-irregular-forms">Od začátku</button></div></section>`; }
+function checkIrregularForms(){ const p=state.irregularFormsPractice,v=getCurrentIrregularFormVerb(); if(!p||!v||p.checked)return; const base=document.querySelector("#irregularBase")?.value||"", past=document.querySelector("#irregularPast")?.value||"", part=document.querySelector("#irregularParticiple")?.value||""; const result={baseCorrect:formAnswerMatches(base,v.base),pastCorrect:formAnswerMatches(past,v.past),participleCorrect:formAnswerMatches(part,v.participle)}; result.allCorrect=result.baseCorrect&&result.pastCorrect&&result.participleCorrect; p.checked=true; p.result=result; if(result.allCorrect)p.correctCount++; else p.wrongCount++; render(); }
+function nextIrregularForm(){ const p=state.irregularFormsPractice; if(!p)return; if(p.index>=p.queue.length-1){navigate("home");return;} p.index++; p.checked=false; p.result=null; render(); }
+function restartIrregularForms(){ startIrregularFormsPractice(); }
+
+function parseImport(text){ const lines=String(text||"").split(/\r?\n/); return (lines.find(l=>l.trim())||"").trim().toLowerCase().startsWith("deck;") ? parseCsvImport(lines) : parseSmartImport(lines); }
+function splitCsvLine(line){ const cells=[]; let cell="", q=false; for(let i=0;i<line.length;i++){ const ch=line[i], next=line[i+1]; if(ch==='"'&&q&&next==='"'){cell+='"'; i++;} else if(ch==='"')q=!q; else if(ch===';'&&!q){cells.push(cell); cell="";} else cell+=ch; } cells.push(cell); return cells.map(normalize); }
+function addImportError(errors,index,text,message){ errors.push({line:index+1,text,message}); }
+function parseCsvImport(lines){ const words=[], errors=[], now=new Date().toISOString(), headers=splitCsvLine(lines[0]).map(h=>h.toLowerCase()); lines.slice(1).forEach((line,off)=>{ if(!line.trim())return; const c=splitCsvLine(line); const value=(n,i)=>normalize(c[headers.indexOf(n)>=0?headers.indexOf(n):i]); const deckValue=value("deck",0), decks=splitTags(deckValue), deck=decks[0]||deckValue, tags=splitTags(value("tags",1)), en=value("en",2), pronounce=value("pronounce",3), cz=value("cz",4), example=value("example",5), note=value("note",6); if(!deck||!en||!cz){addImportError(errors,off+1,line,"Chybí deck, en nebo cz."); return;} words.push({id:createId(),deck,decks:decks.length?decks:[deck],tags,en,pronounce,cz,example,note,mistakes:0,correct:0,createdAt:now}); }); return {words,errors}; }
+function parseSmartImport(lines){ const words=[], errors=[], now=new Date().toISOString(); let currentDeck=`Import ${TODAY_LABEL}`, currentTags=[], last=null; lines.forEach((raw,i)=>{ const original=raw; let line=normalize(raw).replace(/^[•*-]\s*/,""); if(!line)return; const dm=line.match(/^deck\s*:\s*(.+)$/i); if(dm){currentDeck=normalize(dm[1]); return;} const tm=line.match(/^tags\s*:\s*(.+)$/i); if(tm){currentTags=splitTags(tm[1]); return;} const sm=line.match(/^(sentence|věta)\s*:\s*(.+)$/i); if(sm&&last){last.example=normalize(sm[2]); return;} const nm=line.match(/^(note|poznámka)\s*:\s*(.+)$/i); if(nm&&last){last.note=normalize(nm[2]); return;} const wm=line.match(/^(.+?)\s*(?:\[([^\]]*)\])?\s*=\s*(.+)$/); if(!wm){addImportError(errors,i,original,"Řádek není ve formátu slovíčko [výslovnost] = překlad."); return;} last={id:createId(),deck:currentDeck,decks:[currentDeck],tags:currentTags,en:normalize(wm[1]),pronounce:normalize(wm[2]||""),cz:normalize(wm[3]),example:"",note:"",mistakes:0,correct:0,createdAt:now}; words.push(last); }); return {words,errors}; }
+function importWords(){ const textarea=document.querySelector("#importText"); state.importText=textarea?textarea.value:state.importText; const parsed=parseImport(state.importText), merged=mergeWords(state.words,parsed.words); state.words=merged.words; saveWords(); state.importResult={added:merged.added,merged:merged.merged,errors:parsed.errors}; if(merged.added||merged.merged)state.importText=""; render(); }
+function renderImport(){ const r=state.importResult; return `${header("Import")}<section class="stack"><div class="panel stack"><div class="import-help"><strong>Import na tomto zařízení</strong><p class="muted">Vložená slovíčka se uloží jen tady.</p></div><textarea class="textarea" id="importText" spellcheck="false" placeholder="${escapeHtml(IMPORT_TEMPLATE)}">${escapeHtml(state.importText)}</textarea></div><button class="btn" type="button" data-action="do-import">Importovat</button><button class="btn secondary" type="button" data-action="gpt-prompt">Zobrazit prompt pro GPT</button>${r?renderImportResult(r):""}</section>`; }
+function renderImportResult(r){ const e=r.errors||[]; return `<div class="notice ${e.length?"danger":"success"}"><strong>Přidáno: ${r.added} · Sloučeno: ${r.merged}</strong>${e.length?`<p>Chybné řádky:</p><ul class="error-list">${e.map(x=>`<li>Řádek ${x.line}: ${escapeHtml(x.message)} <span class="muted">${escapeHtml(x.text)}</span></li>`).join("")}</ul>`:`<p>Import proběhl v pořádku.</p>`}</div>`; }
+function toCsv(words){ return ["deck;tags;en;pronounce;cz;example;note",...words.map(w=>[getDeckNames(w).join(", "),w.tags.join(", "),w.en,w.pronounce,w.cz,w.example,w.note].map(csvCell).join(";"))].join("\n"); }
+function csvCell(v){ const t=String(v??""); return /[;\n"]/.test(t)?`"${t.replaceAll('"','""')}"`:t; }
+function renderExport(){ return `${header("Export/Záloha")}<section class="stack"><div class="notice">Tohle je záloha slovíček z tohoto zařízení.</div><textarea class="textarea export-box" id="exportText" readonly>${escapeHtml(toCsv(state.words))}</textarea><button class="btn" type="button" data-action="copy-export">Kopírovat do schránky</button><button class="btn secondary" type="button" data-action="download-export">Stáhnout zálohu</button></section>`; }
+async function copyExport(){ const text=toCsv(state.words); try{await navigator.clipboard.writeText(text); alert("Záloha je zkopírovaná do schránky.");}catch(e){document.querySelector("#exportText")?.select(); alert("Kopírování se nepovedlo. Text je označený.");} }
+async function copyTextFrom(id,msg){ try{await navigator.clipboard.writeText(document.querySelector(id).value); alert(msg);}catch(e){document.querySelector(id)?.select(); alert("Kopírování se nepovedlo. Text je označený.");} }
+function downloadExport(){ const blob=new Blob([toCsv(state.words)],{type:"text/csv;charset=utf-8"}), url=URL.createObjectURL(blob), link=document.createElement("a"); link.href=url; link.download=`slovicka-zaloha-${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url); }
+function renderGptPrompt(){ return `${header("Prompt pro GPT")}<section class="stack"><div class="notice">Tenhle text vlož do GPT spolu se svými poznámkami.</div><textarea class="textarea prompt-box" id="gptPromptText" readonly>${escapeHtml(GPT_IMPORT_PROMPT)}</textarea><button class="btn" type="button" data-action="copy-gpt-prompt">Kopírovat prompt</button><button class="btn secondary" type="button" data-action="import">Přejít na Import</button></section>`; }
+function renderListenPrompt(){ return `${header("Prompt pro poslech")}<section class="stack"><div class="notice">Tenhle prompt použij v GPT pro věty k poslechu.</div><textarea class="textarea prompt-box" id="listenPromptText" readonly>${escapeHtml(GPT_LISTEN_PROMPT)}</textarea><button class="btn" type="button" data-action="copy-listen-prompt">Kopírovat prompt</button><button class="btn secondary" type="button" data-action="custom-listen">Přejít na Vlastní poslech</button></section>`; }
+function renderProblems(){ const words=getProblemWords(); return `${header("Problémová slovíčka")}<section class="stack"><button class="btn" type="button" data-action="practice-problems" ${words.length?"":"disabled"}>Procvičovat problémová</button>${words.map(renderWordRow).join("")||`<div class="empty-state">Žádná problémová slovíčka.</div>`}</section>`; }
+function renderAudio(){ return `${header("Poslech")}<section class="stack"><div class="notice">Dvě poslechové stopy pro past simple.</div><button class="btn" type="button" data-action="custom-listen">Vlastní poslech z textu</button><article class="audio-card"><h2>Nepravidelná slovesa 1</h2><p class="muted">be až find</p><audio controls preload="metadata" src="audio/nepravidelna-slovesa-1.wav"></audio></article><article class="audio-card"><h2>Nepravidelná slovesa 2</h2><p class="muted">get až write</p><audio controls preload="metadata" src="audio/nepravidelna-slovesa-2.wav"></audio></article></section>`; }
+function renderCustomListen(){ return `${header("Vlastní poslech")}<section class="stack"><div class="notice">Vlož text ve formátu EN/CZ.</div><textarea class="textarea listen-box" id="customListenText" spellcheck="false">${escapeHtml(state.customListen.text)}</textarea><div class="listen-controls"><button class="btn" data-action="load-custom-listen">Uložit text</button><button class="btn secondary" data-action="listen-prompt">Prompt pro GPT</button></div><div class="notice">Základ poslechu je uložený. Pokud chceš, můžeme příště doplnit plné automatické čtení jako v původní verzi.</div></section>`; }
+function loadCustomListen(){ const t=document.querySelector("#customListenText"); state.customListen.text=t?t.value:state.customListen.text; saveListenText(state.customListen.text); alert("Text poslechu je uložený."); render(); }
+
+function speak(text){ if(!("speechSynthesis" in window)||!text)return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang="en-US"; speechSynthesis.speak(u); }
+function deleteAll(){ if(!confirm("Opravdu smazat všechna uložená slovíčka?"))return; state.words=mergeWords([],buildIrregularVerbs()).words; state.practice=null; saveWords(); navigate("home"); }
+function deleteWord(id){ if(!confirm("Smazat toto slovíčko?"))return; state.words=state.words.filter(w=>w.id!==id); saveWords(); render(); }
+
+app.addEventListener("click", (event)=>{
+  const target=event.target.closest("[data-action]"); if(!target)return;
+  const action=target.dataset.action, name=target.dataset.name||target.dataset.deck, id=target.dataset.id;
+  if(action==="back")goBack();
+  if(action==="decks")navigate("decks");
+  if(action==="tags")navigate("tags");
+  if(action==="import")navigate("import");
+  if(action==="gpt-prompt")navigate("gptPrompt");
+  if(action==="audio")navigate("audio");
+  if(action==="custom-listen")navigate("customListen");
+  if(action==="listen-prompt")navigate("listenPrompt");
+  if(action==="smart-practice")startSmartPractice();
+  if(action==="practice-irregular")startIrregularFormsPractice();
+  if(action==="start-irregular-forms")startIrregularFormsPractice();
+  if(action==="check-irregular-forms")checkIrregularForms();
+  if(action==="next-irregular-form")nextIrregularForm();
+  if(action==="restart-irregular-forms")restartIrregularForms();
+  if(action==="problems")navigate("problems");
+  if(action==="export")navigate("export");
+  if(action==="delete-all")deleteAll();
+  if(action==="do-import")importWords();
+  if(action==="load-custom-listen")loadCustomListen();
+  if(action==="word-list")navigate("wordList",{type:target.dataset.type||"deck",name});
+  if(action==="delete-word")deleteWord(id);
+  if(action==="practice-deck")startDeckPractice(name);
+  if(action==="practice-deck-short")startDeckPractice(name,SMART_LIMIT);
+  if(action==="practice-tag")startTagPractice(name);
+  if(action==="practice-tag-short")startTagPractice(name,SMART_LIMIT);
+  if(action==="practice-problems")startProblemPractice();
+  if(action==="restart-practice")restartPractice();
+  if(action==="flip-card"){state.practice.flipped=!state.practice.flipped; render();}
+  if(action==="set-mode"){state.practice.mode=target.dataset.mode; state.practice.flipped=false; render();}
+  if(action==="speak-word")speak(getCurrentPracticeWord()?.en);
+  if(action==="speak-example")speak(getCurrentPracticeWord()?.example);
+  if(action==="mark-wrong")markCurrent(false);
+  if(action==="mark-right")markCurrent(true);
+  if(action==="copy-export")copyExport();
+  if(action==="copy-gpt-prompt")copyTextFrom("#gptPromptText","Prompt pro GPT je zkopírovaný.");
+  if(action==="copy-listen-prompt")copyTextFrom("#listenPromptText","Prompt pro poslech je zkopírovaný.");
+  if(action==="download-export")downloadExport();
 });
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch((error) => {
-      console.warn("Offline režim se nepodařilo připravit.", error);
-    });
-  });
-}
-
+if("serviceWorker" in navigator){ window.addEventListener("load",()=>{ navigator.serviceWorker.register("service-worker.js").catch(error=>console.warn("Offline režim se nepodařilo připravit.",error)); }); }
 render();
