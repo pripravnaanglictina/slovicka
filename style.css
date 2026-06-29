@@ -45,11 +45,11 @@ body {
 .app-shell {
   width: min(100%, 600px);
   margin: 0 auto;
-  padding: 16px;
+  padding: 14px;
 }
 
 .topbar h1 {
-  margin: 0 0 16px;
+  margin: 0 0 12px;
 }
 
 /* stats */
@@ -61,19 +61,19 @@ body {
 
 .stat {
   background: var(--surface);
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   text-align: center;
 }
 
 .stat strong {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
 }
 
 /* notice */
 .notice {
   background: var(--surface-soft);
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
 }
 
@@ -93,7 +93,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 52px;
+  height: 50px;
   width: 100%;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -119,10 +119,11 @@ body {
 
 .game-screen {
   display: grid;
-  gap: 14px;
-  min-height: calc(100vh - 80px);
+  gap: 10px; /* MENŠÍ mezery */
+  min-height: calc(100vh - 70px);
 }
 
+/* horní info */
 .game-top {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -130,37 +131,33 @@ body {
 }
 
 .game-stat {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 900;
 }
 
 .game-stat.big {
-  font-size: 2.2rem;
+  font-size: 1.9rem;
 }
 
+/* progress */
 .game-progress {
-  height: 6px;
+  height: 5px;
   background: #777;
   border-radius: 999px;
 }
 
-.game-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #18c932, #11a526);
-}
-
 /* otázka */
 .game-question {
-  min-height: 130px;
+  min-height: 95px; /* MENŠÍ */
   text-align: center;
 }
 
 .game-question h2 {
-  font-size: clamp(2.6rem, 13vw, 4.5rem);
-  margin: 12px 0 0;
+  font-size: clamp(2.3rem, 11vw, 3.8rem);
+  margin: 6px 0 0;
 }
 
-/* ❌ odstraněné rámečky */
+/* sloty bez rámečků */
 .slot-row {
   border: none !important;
   background: transparent !important;
@@ -168,25 +165,24 @@ body {
   box-shadow: none !important;
 }
 
-/* sloty */
 .slot-area {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   justify-items: center;
 }
 
 .slot-boxes {
   display: flex;
-  gap: 5px;
+  gap: 4px;
 }
 
 .slot-box {
-  width: 34px;
-  height: 42px;
+  width: 32px;
+  height: 38px;
   border-radius: 8px;
   background: linear-gradient(#666, #3f3f3f);
   color: #fff;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   font-weight: 900;
   display: flex;
   align-items: center;
@@ -197,18 +193,18 @@ body {
 .game-letters {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  gap: 8px;
   justify-items: center;
 }
 
 .game-letter {
-  width: 58px;
-  height: 58px;
+  width: 52px;
+  height: 52px;
   border-radius: 8px;
   border: 0;
   background: linear-gradient(#d9d9d9, #8d8d8d);
   color: #2b008b;
-  font-size: 2rem;
+  font-size: 1.8rem;
   font-weight: 900;
   box-shadow:
     inset 0 2px 4px rgba(255,255,255,.7),
@@ -219,13 +215,9 @@ body {
   transform: translateY(2px);
 }
 
-.game-letter:disabled {
-  opacity: .5;
-}
-
 /* akce */
 .game-actions {
   display: grid;
   grid-template-columns: 0.7fr 1fr 1.2fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
