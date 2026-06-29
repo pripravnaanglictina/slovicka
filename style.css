@@ -31,29 +31,28 @@
   }
 }
 
-/* základ */
 * { box-sizing: border-box; }
-html, body {
+html { background: var(--bg); }
+
+body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui;
+  font-family: system-ui, sans-serif;
 }
 
-/* CONTAINER */
+/* layout */
 .app-shell {
   width: min(100%, 600px);
   margin: 0 auto;
   padding: 16px;
 }
 
-/* NADPIS */
 .topbar h1 {
   margin: 0 0 16px;
-  font-size: 2rem;
 }
 
-/* STATISTIKA */
+/* stats */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -61,27 +60,26 @@ html, body {
 }
 
 .stat {
-  padding: 10px;
   background: var(--surface);
+  padding: 12px;
   border-radius: 8px;
   text-align: center;
 }
 
 .stat strong {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
 }
 
-/* TEXT */
+/* notice */
 .notice {
-  padding: 10px;
   background: var(--surface-soft);
+  padding: 12px;
   border-radius: 8px;
 }
 
-/* ✅ TLAČÍTKA – HLAVNÍ OPRAVA */
+/* buttons */
 .button-grid {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -91,18 +89,18 @@ html, body {
   gap: 10px;
 }
 
-/* BUTTON */
 .btn {
-  display: flex;
-  justify-content: center;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   height: 52px;
   width: 100%;
   border-radius: 8px;
+  border: 1px solid transparent;
   background: var(--primary);
-  color: white;
+  color: #fff;
   font-weight: 700;
-  border: none;
+  box-shadow: var(--shadow);
 }
 
 .btn.secondary {
@@ -115,7 +113,9 @@ html, body {
   background: var(--danger);
 }
 
-/* ===== HRA – jen minimální změny ===== */
+/* ========================= */
+/* HERNÍ OBRAZOVKA */
+/* ========================= */
 
 .game-screen {
   display: grid;
@@ -141,6 +141,7 @@ html, body {
 .game-progress {
   height: 6px;
   background: #777;
+  border-radius: 999px;
 }
 
 .game-progress-fill {
@@ -148,26 +149,83 @@ html, body {
   background: linear-gradient(90deg, #18c932, #11a526);
 }
 
+/* otázka */
 .game-question {
   min-height: 130px;
   text-align: center;
 }
 
 .game-question h2 {
-  font-size: clamp(2.5rem, 13vw, 4.5rem);
+  font-size: clamp(2.6rem, 13vw, 4.5rem);
+  margin: 12px 0 0;
+}
+
+/* ❌ odstraněné rámečky */
+.slot-row {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+/* sloty */
+.slot-area {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.slot-boxes {
+  display: flex;
+  gap: 5px;
 }
 
 .slot-box {
   width: 34px;
   height: 42px;
+  border-radius: 8px;
+  background: linear-gradient(#666, #3f3f3f);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* písmena */
+.game-letters {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  justify-items: center;
 }
 
 .game-letter {
-  width: 52px;
-  height: 52px;
+  width: 58px;
+  height: 58px;
+  border-radius: 8px;
+  border: 0;
+  background: linear-gradient(#d9d9d9, #8d8d8d);
+  color: #2b008b;
+  font-size: 2rem;
+  font-weight: 900;
+  box-shadow:
+    inset 0 2px 4px rgba(255,255,255,.7),
+    0 4px 8px rgba(0,0,0,.28);
 }
 
+.game-letter:active {
+  transform: translateY(2px);
+}
+
+.game-letter:disabled {
+  opacity: .5;
+}
+
+/* akce */
 .game-actions {
   display: grid;
   grid-template-columns: 0.7fr 1fr 1.2fr 1fr;
+  gap: 8px;
 }
