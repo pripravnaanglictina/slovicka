@@ -400,5 +400,68 @@ justify-content: center;
   }
 }
 
+/* =========================
+   ✅ MOBILE OPTIMALIZACE
+   ========================= */
+@media (max-width: 600px) {
+
+  /* menší horní statistiky */
+  .stats-grid {
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .stat {
+    padding: 10px;
+    min-height: 50px;
+    font-size: 0.9rem;
+  }
+
+  .stat strong {
+    font-size: 1.2rem;
+  }
+
+  /* menší hlavní nadpis */
+  .topbar h1 {
+    font-size: 1.6rem;
+  }
+
+  /* menší tlačítka */
+  .btn {
+    height: 46px;
+    font-size: 0.9rem;
+  }
+
+  /* menší sloty (šedé boxy) */
+  .slot-box {
+    width: 26px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  /* menší písmena (klikací) */
+  .game-letter {
+    width: 42px;
+    height: 42px;
+    font-size: 1.4rem;
+  }
+
+  /* menší mezery */
+  .game-letters {
+    gap: 6px;
+    margin-top: 15px;
+  }
+
+  .game-actions {
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  /* menší otázka */
+  .game-question h2 {
+    font-size: clamp(1.8rem, 10vw, 2.5rem);
+  }
+
+}
 
 
