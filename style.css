@@ -441,9 +441,9 @@ justify-content: center;
 
   /* menší písmena (klikací) */
   .game-letter {
-    width: 36px;
-    height: 36px;
-    font-size: 1.2rem;
+    width: 25px;
+    height: 25px;
+    font-size: 1.0rem;
   }
 
   /* menší mezery */
