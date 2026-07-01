@@ -27,12 +27,16 @@
     --danger-soft: #3a2424;
     --success: #80d59a;
     --success-soft: #203528;
-    --shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
   }
 }
 
-* { box-sizing: border-box; }
-html { background: var(--bg); }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
 
 body {
   margin: 0;
@@ -45,37 +49,48 @@ body {
 .app-shell {
   width: min(100%, 600px);
   margin: 0 auto;
-  padding: 14px;
+  padding: 16px;
 }
 
 .topbar h1 {
-  margin: 0 0 12px;
+  margin: 0 0 16px;
 }
 
 /* stats */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
+margin-bottom: 10px;
+justify-content: center;
 }
 
 .stat {
   background: var(--surface);
-  padding: 10px;
+  padding: 16px;              /* 🔥 stejně jako hnědý box */
   border-radius: 8px;
   text-align: center;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  min-height: 68px;           /* 🔥 stejná výška jako notice */
 }
 
 .stat strong {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
 }
 
 /* notice */
 .notice {
   background: var(--surface-soft);
-  padding: 10px;
+  padding: 16px;         /* 🔥 stejný padding jako .stat */
   border-radius: 8px;
+  min-height: 68px;      /* 🔥 stejné jako .stat */
+margin-bottom: 10px;
 }
+
 
 /* buttons */
 .button-grid {
@@ -93,7 +108,7 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 50px;
+  height: 52px;
   width: 100%;
   border-radius: 8px;
   border: 1px solid transparent;
@@ -114,16 +129,43 @@ body {
 }
 
 /* ========================= */
-/* HERNÍ OBRAZOVKA */
+/* PRACTICE (KRATKY TRENINK) */
 /* ========================= */
 
-.game-screen {
-  display: grid;
-  gap: 10px; /* MENŠÍ mezery */
-  min-height: calc(100vh - 70px);
+/* celý screen */
+#app > section.stack {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 120px);
 }
 
-/* horní info */
+/* horní část */
+.practice-head {
+  margin-bottom: 20px;
+}
+
+/* karta se slovem (střed) */
+
+
+/* samotné slovo */
+.card-main {
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 900;
+  margin: 0 auto;
+text-align: center;
+}
+
+/* tlačítka dolů */
+.practice-actions {
+  margin-top: auto;
+}
+
+/* ========================= */
+/* GAME (nepravidelná slovesa) */
+/* ========================= */
+
+
+
 .game-top {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -131,50 +173,44 @@ body {
 }
 
 .game-stat {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 900;
 }
 
 .game-stat.big {
-  font-size: 1.9rem;
+  font-size: 2.2rem;
 }
 
-/* progress */
-.game-progress {
-  height: 5px;
-  background: #777;
-  border-radius: 999px;
-}
-
-/* otázka */
 .game-question {
-  min-height: 95px; /* MENŠÍ */
+  min-height: 120px;
   text-align: center;
 }
 
 .game-question h2 {
-  font-size: clamp(2.3rem, 11vw, 3.8rem);
-  margin: 6px 0 0;
+  font-size: clamp(2.5rem, 13vw, 4.2rem);
+  margin: 10px 0 0;
 }
 
-/* sloty bez rámečků */
 .slot-row {
-  border: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-  box-shadow: none !important;
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+ display: flex;
+   flex-direction: column;
+  align-items: center;
 }
 
-.slot-area {
-  display: grid;
-  gap: 6px;
-  justify-items: center;
-}
+
+   
+
 
 .slot-boxes {
   display: flex;
-  gap: 4px;
+  gap: 5px;
+justify-content: center;
 }
+
 
 .slot-box {
   width: 32px;
@@ -189,35 +225,180 @@ body {
   justify-content: center;
 }
 
-/* písmena */
 .game-letters {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 8px;
-  justify-items: center;
 }
 
 .game-letter {
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: 8px;
   border: 0;
   background: linear-gradient(#d9d9d9, #8d8d8d);
-  color: #2b008b;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: 900;
-  box-shadow:
-    inset 0 2px 4px rgba(255,255,255,.7),
-    0 4px 8px rgba(0,0,0,.28);
 }
 
-.game-letter:active {
-  transform: translateY(2px);
+
+/* ========================= */
+/* ✅ FIX – nepravidelná slovesa */
+/* ========================= */
+
+/* vycentruje řádky (infinitiv / past / participle) */
+
+
+/* vycentruje samotné čtverečky */
+
+
+
+/* ========================= */
+/* ✅ FIX – krátký trénink */
+/* ========================= */
+
+/* celý screen */
+#app > section.stack {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
 }
 
-/* akce */
+/* hlavní karta – bez rámečku a přesně na střed */
+
+
+/* samotné slovo */
+
+
+/* ========================= */
+/* ✅ FIX – nepravidelná slovesa (centrování) */
+/* ========================= */
+
+/* celý obsah hry vycentrovat */
+.game-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* 🔥 horizontální střed */
+}
+
+/* jednotlivé řádky (infinitiv, past...) */
+
+
+
+
+
+/* ========================= */
+/* ✅ FIX tlačítek (vedle sebe) */
+/* ========================= */
+
 .game-actions {
-  display: grid;
-  grid-template-columns: 0.7fr 1fr 1.2fr 1fr;
-  gap: 6px;
+  display: flex;
+  gap: 12px;          /* 🔥 větší mezery → víc vzduchu */
+  margin-top: 25px;
+
 }
+
+
+
+
+.game-actions .btn {
+  flex: 1;
+  min-width: 90px;   /* 🔥 rozšíří tlačítka */
+  padding: 0 10px;   /* 🔥 víc prostoru uvnitř */
+}
+
+
+/* ========================= */
+/* ✅ FIX – practice (slovo uprostřed + bez rámečku) */
+/* ========================= */
+
+#app > section.stack {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 120px);
+}
+
+
+
+
+
+/* ========================= */
+/* ✅ FIX – horní počítadlo */
+/* ========================= */
+
+.game-top {
+    width: 100%;                 /* 🔥 roztáhne přes celou šířku */
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    text-align: center;
+}
+
+
+
+
+.back-button {
+  width: 44px;     /* 🔥 širší */
+  height: 44px;    /* 🔥 vyšší */
+  font-size: 1.6rem;  /* 🔥 větší šipka */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+}
+
+.flashcard {
+  display: block;
+  width: 100%;        /* 🔥 KLÍČOVÉ */
+  text-align: center;
+ background: transparent !important;
+  border: none !important;
+   box-shadow: none !important;
+}
+
+.flashcard .card-main {
+  display: block;
+  width: 100%;        /* 🔥 KLÍČOVÉ */
+  text-align: center;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 300px;     /* 🔥 zvětší box */
+  font-size: 1rem;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+/* větší verze pro export a prompt */
+.export-box,
+.prompt-box,
+.listen-box {
+  min-height: 400px;     /* 🔥 ještě větší */
+}
+
+/* ✅ mezera mezi sloty a písmeny */
+.game-letters {
+  margin-top: 25px;
+}
+
+/* ✅ mezera mezi písmeny a tlačítky */
+
+/* PC / notebook: písmenkové čtverečky schovat, protože se používá klávesnice */
+@media (hover: hover) and (pointer: fine) {
+  .game-letters {
+    display: none;
+  }
+}
+
+/* Telefon / dotykové zařízení: písmenkové čtverečky zůstanou vidět */
+@media (hover: none), (pointer: *oarse) {
+  .game-letters {
+    dis*lay: grid;
+  }
+}
+
+
+
