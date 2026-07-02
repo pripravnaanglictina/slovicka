@@ -441,9 +441,9 @@ justify-content: center;
 
   /* menší písmena (klikací) */
   .game-letter {
-    width: 25px;
-    height: 25px;
-    font-size: 1.0rem;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
   }
 
   /* menší mezery */
@@ -464,5 +464,16 @@ justify-content: center;
 
 }
 
+
+.links-section{
+    margin-bottom:20px;
+}
+
+.links-category{
+    text-align:center;
+    font-size:1.3rem;
+    font-weight:700;
+    margin-bottom:10px;
+}
 
 

@@ -161,6 +161,405 @@ const IRREGULAR_VERBS = [
 ["cast","kast","cast","kast","hodit / obsadit","They cast roles.","They cast roles.","cast"]
 ];
 
+const LINKS = [
+  
+ {
+    category: "ALCPT - UNOB ",
+    items: [
+      
+
+    {
+      title: "ACLTP - UNOB",
+      category: "HK",
+      url: "https://trnakovaeva-maker.github.io/placement-test/index.html"
+    }
+  
+
+    ]
+  },
+
+
+
+
+
+
+{
+    category: "HK",
+    items: [
+      
+
+
+{
+  title: "Listening SLP1-2 (1)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UQVVBS1NZUFNFUEswMkIyVVdEMVo5WVIzSC4u&route=shorturl"
+},
+
+
+{
+        title: "Reading SLP1-2 (1)",
+        url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UOFJTQjUwTFhDOFhETlQ0WldFS09MTzlISi4u&route=shorturl"
+      },
+
+{
+  title: "Listening SLP1-2 (2)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUQkk5T0pWWVZKSVIzVjFJUFdKVEMxWUk2MC4u"
+},
+{
+  title: "Reading SLP1-2 (2)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUQzdNUzJZUEw2SUUxUzVLUUMyMEhDODJVSi4u"
+},
+{
+  title: "Listening SLP1-2 (3)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUMlY2ODRaUFYzNkhCWU4xVTVSWE9XMUhKRy4u"
+},
+{
+  title: "Reading SLP1-2 (3)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUMjVWWTczM0tSTUFZTU5PQkVBSEpGQUJFUy4u"
+},
+{
+  title: "Listening SLP1-2 (4)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUNk0zVjYzUFkyME9ROTJXUVE5VTNURTlWRy4u"
+},
+{
+  title: "Reading SLP1-2 (4)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUOVpZNlEzS0IyUTVHQldGQTkwQkg5Vk9PSy4u"
+},
+{
+  title: "Listening SLP1-2 (5)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VUQ1hFSDNGVFpRS0pFQVo2QzFWQk44NjBLTy4u"
+},
+{
+  title: "Reading SLP1-2 (5)",
+  url: "https://forms.office.com/Pages/ResponsePage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzi9cacFPaXxGghD8NCI4A2VURTJGNVg2WEg1NFhOMkdGQlA2REY0VTlSNC4u"
+},
+{
+  title: "Listening SLP1-2 (6)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UNDNCM0tORUJSMTlZWlc2NFpEQkFCVjRCTi4u&route=shorturl"
+},
+{
+  title: "Reading SLP1-2 (6)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UNjc3NUpNQTI1TDRKRkVKTENNSEtIU0NLMy4u&route=shorturl"
+},
+{
+  title: "Listening SLP1-2 (7)",
+  url: "https://forms.office.com/e/WUPxeLNYWw"
+},
+{
+  title: "Reading SLP1-2 (7)",
+  url: "https://forms.office.com/e/cmBx5H8NhL"
+},
+{
+  title: "Listening SLP1-2 (8)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzsC0iPxofS9JsrPYCvqZBJZUNzlGQzFDUk1JMkdDVzJSNkc1QjNFWVdNMC4u&route=shorturl"
+},
+{
+  title: "Reading SLP1-2 (8)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzsC0iPxofS9JsrPYCvqZBJZUMzBVMjZPS1JKVUJINE82TUQzQllBRllYQS4u&route=shorturl"
+},
+{
+  title: "Listening SLP1-2 (9)",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UQjhWMVdFQTBMVFRNSEdDMUZIQktGUEhZUC4u&route=shorturl"
+},
+     
+    ]
+  },
+
+  {
+    category: "LISTENING - STANAG 2",
+    items: [
+     {
+  title: "Listening SLP2A",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UQTdNR0lQVjRVTDUwNzZFR1FaNDNEWEY3Ui4u&route=shorturl"
+},
+{
+  title: "Listening 2A2",
+  category: "HK",
+  url: "https://forms.office.com/e/AeA9cmZR7w"
+},
+{
+  title: "Listening 2D",
+  category: "HK",
+  url: "https://forms.office.com/e/ZELyesaxF6"
+},
+{
+  title: "Listening 2F",
+  category: "HK",
+  url: "https://forms.office.com/e/4TCWzF7xBw"
+},
+{
+  title: "Listening 2E",
+  category: "HK",
+  url: "https://forms.office.com/e/AWNFU7dRUA"
+},
+{
+  title: "Listening SLP2G",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UQ0ZFRzNRV1AxRlNMR1REOEU4MkZCWDA5Ri4u&route=shorturl"
+},
+{
+  title: "Listening SLP 2L",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UMlkxNlg0OE5WTksySUxSSkNCSFcwWDczMC4u&route=shorturl"
+},
+{
+  title: "Listening SLP 2M",
+  category: "HK",
+  url: "https://forms.office.com/e/kLNBvtQLUw"
+},
+{
+  title: "Listening SLP 2P",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzsC0iPxofS9JsrPYCvqZBJZURTVaRDUwQTI0MkpET0pUNVJBNldDNkE0TC4u&route=shorturl"
+},
+{
+  title: "Listening SLP 2R",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UMko0Wk82WVdLNTBKMlVRRkg0N01NS1FVTi4u&route=shorturl"
+},
+{
+  title: "Listening SLP 2S",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UOUJVTjZLQ0lNNFgxMk43NjY4VjdLR0NITy4u&route=shorturl"
+},
+{
+  title: "Listening SLP 2T",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UMDNTQ0ZTRzNKVUk1UDBYV1I2TTNGTzIyVy4u&route=shorturl"
+},
+    ]
+  },
+
+  {
+    category: "READING - STANAG 2",
+    items: [
+     {
+  title: "Reading II (1)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UNkZZTUNDQllXRlFRQTNHRUdaUFRHMkwxTy4u&route=shorturl"
+},
+{
+  title: "Reading II (2)",
+  category: "HK",
+  url: "https://forms.office.com/Pages/ShareFormPage.aspx?id=KiCt9cGFmkOYhqm8Ze7nznqsJ0hn1IpNglHyM_0bSgVUQTM1TEVMNVFDSThCRlg4NURRT01aSU1OMy4u&sharetoken=Q3PaMidsnkvszq7GHTQp"
+},
+{
+  title: "Reading II (3)",
+  category: "HK",
+  url: "https://forms.office.com/Pages/ShareFormPage.aspx?id=KiCt9cGFmkOYhqm8Ze7nznqsJ0hn1IpNglHyM_0bSgVUN01FS0kyT1JTRTRTSjVDVzVWOFVQMzRHTS4u&sharetoken=h2rfC1ICIw3vOBUJOw21"
+},
+{
+  title: "Reading II (4)",
+  category: "HK",
+  url: "https://forms.office.com/Pages/ShareFormPage.aspx?id=KiCt9cGFmkOYhqm8Ze7nznqsJ0hn1IpNglHyM_0bSgVUQzlFRk5OTENNWlpPT0xIRFpZWkRQRE9CQy4u&sharetoken=z27dRhrldsdbnMv9Lcho"
+},
+{
+  title: "Reading II (5)",
+  category: "HK",
+  url: "https://forms.office.com/e/Jv75MJ8BT7"
+},
+{
+  title: "Reading II (6)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UOUlGOVI2M0NPWEpNU1I0VFVHRUlEUUFKSC4u&route=shorturl"
+},
+{
+  title: "Reading II (7)",
+  category: "HK",
+  url: "https://forms.office.com/e/JTmu8XE2Lw"
+},
+{
+  title: "Reading II (8)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzsC0iPxofS9JsrPYCvqZBJZURFk2MFlXMExTWUpBWUVTR0owRUhOREpNWC4u&route=shorturl"
+},
+{
+  title: "Reading II (10)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UNzFLMkNMRjROUExTTjBMUDVEQVBEUktUTC4u&route=shorturl"
+},
+{
+  title: "Reading II (11)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1URVRNV0taWFFNNksyUzJMSERHVjcxOTRSVi4u&route=shorturl"
+},
+{
+  title: "Reading II (12)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzhl0sBWExUZFtzvr_enMOH1UREZWTDhEQkpNRkNOMzI2WVQ1N1RUN1NXNi4u&route=shorturl"
+},
+{
+  title: "Reading II (13)",
+  category: "HK",
+  url: "https://forms.office.com/pages/responsepage.aspx?id=KiCt9cGFmkOYhqm8Ze7nzsC0iPxofS9JsrPYCvqZBJZUOTdST0JTMFc3VDFEOVhFVFgxNlZIR1VSNS4u&route=shorturl"
+},
+    ]
+  },
+
+
+  {
+    category: "ALC",
+    items: [
+      
+    {
+      title: "1A+2A",
+      category: "HK",
+      url: "https://forms.office.com/e/0wTrXc28E5"
+    },
+    {
+      title: "3A",
+      category: "HK",
+      url: "https://forms.office.com/e/CpM8bUEVuj"
+    },
+    {
+      title: "4A",
+      category: "HK",
+      url: "https://forms.office.com/e/eFAf4pyitE"
+    },
+    {
+      title: "5A",
+      category: "HK",
+      url: "https://forms.office.com/e/nqxP443SUj"
+    },
+    {
+      title: "6A",
+      category: "HK",
+      url: "https://forms.office.com/e/8ATgNESctR"
+    },
+    {
+      title: "7A",
+      category: "HK",
+      url: "https://forms.office.com/e/UtfjXCZAtS"
+    },
+    {
+      title: "8A",
+      category: "HK",
+      url: "https://forms.office.com/e/tdpdH5EZ4b"
+    },
+    {
+      title: "9A",
+      category: "HK",
+      url: "https://forms.office.com/e/58wuL6kLH6"
+    },
+    {
+      title: "10A",
+      category: "HK",
+      url: "https://forms.office.com/e/0D5ue8eu4T"
+    },
+    {
+      title: "11A",
+      category: "HK",
+      url: "https://forms.office.com/e/E4vWfjA9uG"
+    },
+    {
+      title: "12A",
+      category: "HK",
+      url: "https://forms.office.com/e/WEC6fjTMbv"
+    },
+    {
+      title: "13A",
+      category: "HK",
+      url: "https://forms.office.com/e/E2vU8iS7zV"
+    },
+    {
+      title: "14A",
+      category: "HK",
+      url: "https://forms.office.com/e/rY1d1tLaGQ"
+    },
+    {
+      title: "15A",
+      category: "HK",
+      url: "https://forms.office.com/e/h21sWhnWhH"
+    },
+    {
+      title: "16A",
+      category: "HK",
+      url: "https://forms.office.com/e/XRxZZAbgin"
+    },
+    {
+      title: "17A",
+      category: "HK",
+      url: "https://forms.office.com/e/D103YGWXWD"
+    },
+    {
+      title: "18A",
+      category: "HK",
+      url: "https://forms.office.com/e/VHWwETgG3A"
+    },
+    {
+      title: "19A",
+      category: "HK",
+      url: "https://forms.office.com/e/2gk5AdnUDS"
+    },
+    {
+      title: "20A",
+      category: "HK",
+      url: "https://forms.office.com/e/DfJcQbMcpH"
+    },
+    {
+      title: "21A",
+      category: "HK",
+      url: "https://forms.office.com/e/WHMq03MUFW"
+    },
+    {
+      title: "22A",
+      category: "HK",
+      url: "https://forms.office.com/e/Ff0E3APie8"
+    },
+    {
+      title: "23A",
+      category: "HK",
+      url: "https://forms.office.com/e/ci8WeUx5WR"
+    },
+    {
+      title: "24A",
+      category: "HK",
+      url: "https://forms.office.com/e/N2EsvjFh15"
+    },
+    {
+      title: "25A",
+      category: "HK",
+      url: "https://forms.office.com/e/g7RBzGzCdz"
+    },
+    {
+      title: "26A",
+      category: "HK",
+      url: "https://forms.office.com/e/jZmVm6Xbat"
+    },
+    {
+      title: "27A",
+      category: "HK",
+      url: "https://forms.office.com/e/r5JcDfDu0w"
+    },
+    {
+      title: "28A",
+      category: "HK",
+      url: "https://forms.office.com/e/NjEyFxqbwF"
+    },
+    {
+      title: "29A",
+      category: "HK",
+      url: "https://forms.office.com/e/JajuNLJsQK"
+    },
+    {
+      title: "30A",
+      category: "HK",
+      url: "https://forms.office.com/e/kmj5eTLwHF"
+    }
+  
+
+    ]
+  }
+
+
+
+
+
+
+
+];
+
+
 const app = document.querySelector("#app");
 const state = {
 	words: loadWords(),
@@ -298,22 +697,16 @@ function mergeWords(existing, incoming) {
 }
 
 function loadWords() {
-	let words = [],
-		presetVersion = 0;
-	try {
-		const saved = localStorage.getItem(STORAGE_KEY);
-		if (saved) {
-			const p = JSON.parse(saved);
-			words = Array.isArray(p.words) ? p.words : [];
-			presetVersion = Number(p.presetVersion || 0);
-		}
-	} catch (e) {
-		console.warn("Uložená data se nepodařilo načíst.", e);
-	}
-	words = normalizeWords(words);
-	if (presetVersion < PRESET_VERSION) words = mergeWords(words, buildIrregularVerbs()).words;
-	saveWords(words);
-	return words;
+
+  let words = [];
+
+  words = mergeWords(words, buildIrregularVerbs()).words;
+
+  if (typeof CUSTOM_WORDS !== "undefined") {
+    words = mergeWords(words, CUSTOM_WORDS).words;
+  }
+
+  return words;
 }
 
 function saveWords(words = state.words) {
@@ -421,7 +814,8 @@ function render() {
 		gptPrompt: renderGptPrompt,
 		customListen: renderCustomListen,
 		listenPrompt: renderListenPrompt,
-		irregularForms: renderIrregularForms
+		irregularForms: renderIrregularForms,
+links: renderLinks
 	};
 	app.innerHTML = (views[state.view] || renderHome)();
 }
@@ -430,12 +824,47 @@ function renderHome() {
 	const all = state.words.length,
 		decks = getDecks().length,
 		problems = getProblemWords().length;
-	return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid" aria-label="Souhrn slovíček"><div class="stat"><strong>${all}</strong><span>slovíček</span></div><div class="stat"><strong>${decks}</strong><span>lekcí</span></div><div class="stat"><strong>${problems}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje nepravidelná slovesa. Ostatní lekce si můžeš přidávat importem.</div><div class="button-grid"><button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button><button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button><button class="btn secondary" type="button" data-action="import">Import</button><button class="btn secondary" type="button" data-action="gpt-prompt">Prompt pro GPT</button><button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button><button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button><button class="btn secondary" type="button" data-action="export">Export/Záloha</button><button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button></div></section>`;
+	return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid" aria-label="Souhrn slovíček"><div class="stat"><strong>${all}</strong><span>slovíček</span></div><div class="stat"><strong>${decks}</strong><span>lekcí</span></div><div class="stat"><strong>${problems}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje nepravidelná slovesa. Ostatní lekce si můžeš přidávat importem.</div><div class="button-grid"><button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button><button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button>
+
+<button class="btn secondary" type="button" data-action="links">Odkazy</button>
+
+<button class="btn secondary" type="button" data-action="import">Import</button><button class="btn secondary" type="button" data-action="gpt-prompt">Prompt pro GPT</button><button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button><button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button><button class="btn secondary" type="button" data-action="export">Export/Záloha</button><button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button></div></section>`;
 }
 
 function renderDecks() {
 	const decks = getDecks();
 	return `${header("Lekce")}<section class="stack">${decks.length?decks.map(d=>renderCollectionRow(d,"deck")).join(""):`<div class="empty-state">Zatím tu nejsou žádné lekce.</div>`}</section>`;
+}
+
+function renderLinks() {
+  return `
+    ${header("Odkazy")}
+
+    <section class="stack">
+
+      ${LINKS.map(group => `
+        <div class="links-section">
+
+          <h2 class="links-category">
+            ${escapeHtml(group.category)}
+          </h2>
+
+          ${group.items.map(link => `
+            <a
+              class="btn secondary"
+              href="${link.url}"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ${escapeHtml(link.title)}
+            </a>
+          `).join("")}
+
+        </div>
+      `).join("")}
+
+    </section>
+  `;
 }
 
 function renderTags() {
@@ -1150,6 +1579,7 @@ app.addEventListener("click", event => {
 	if (action === "custom-listen") navigate("customListen");
 	if (action === "listen-prompt") navigate("listenPrompt");
 	if (action === "smart-practice") startSmartPractice();
+	if (action === "links") navigate("links");
 	if (action === "practice-irregular") startIrregularFormsPractice();
 	if (action === "start-irregular-forms") startIrregularFormsPractice();
 	if (action === "check-irregular-forms") checkIrregularForms();
