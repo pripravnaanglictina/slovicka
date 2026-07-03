@@ -10,32 +10,7 @@ const TODAY_LABEL = new Date().toLocaleDateString("cs-CZ", {
 	year: "numeric"
 });
 
-const IMPORT_TEMPLATE = `deck;tags;en;pronounce;cz;example;note
-Lekce 2;cestování, fráze;go away;gou əwéj;odjet pryč;We went away for the weekend.;
-Lekce 2;jídlo;a picky eater;ə pyki ítr;vybíravý v jídle;My son is a picky eater.;`;
 
-const GPT_IMPORT_PROMPT = `Připrav mi slovíčka pro import do mé aplikace.
-
-Výstup musí být pouze CSV se středníkem, bez komentářů okolo.
-
-Formát:
-deck;tags;en;pronounce;cz;example;note
-
-Pravidla:
-- deck = název lekce, například Lekce 3
-- tags = krátké štítky oddělené čárkou
-- en = anglické slovíčko nebo fráze
-- pronounce = jednoduchý český fonetický přepis
-- cz = český překlad
-- example = krátká anglická věta
-- note = jen pokud je potřeba vysvětlení, jinak prázdné
-- nevkládej nepravidelná slovesa, ta už jsou v aplikaci
-- nepoužívej středník uvnitř hodnot
-- každý řádek musí mít přesně 7 sloupců
-- ponech hlavičku jako první řádek
-
-Tady jsou moje slovíčka / poznámky:
-[vložím text]`;
 
 const LISTEN_TEMPLATE = `title: Past simple - moje věty
 repeat: 2
@@ -565,12 +540,11 @@ const state = {
 	words: loadWords(),
 	view: "home",
 	params: {},
-	importText: "",
-	importResult: null,
+	smartWrite: null,
 	practice: null,
 	irregularFormsPractice: null,
 	customListen: {
-		text: loadListenText()
+	text: loadListenText()
 	}
 };
 
@@ -698,6 +672,21 @@ function mergeWords(existing, incoming) {
 
 function loadWords() {
 
+  let savedWords = [];
+
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (saved) {
+      const data = JSON.parse(saved);
+      savedWords = Array.isArray(data.words)
+        ? data.words
+        : [];
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+
   let words = [];
 
   words = mergeWords(words, buildIrregularVerbs()).words;
@@ -706,8 +695,32 @@ function loadWords() {
     words = mergeWords(words, CUSTOM_WORDS).words;
   }
 
+  // přenes statistiky ze starých záznamů
+  const stats = new Map(
+    savedWords.map(w => [
+      `${w.en.toLowerCase()}::${w.cz.toLowerCase()}`,
+      w
+    ])
+  );
+
+  words.forEach(w => {
+    const old = stats.get(
+      `${w.en.toLowerCase()}::${w.cz.toLowerCase()}`
+    );
+
+    if (!old) return;
+
+    w.mistakes = old.mistakes || 0;
+    w.correct = old.correct || 0;
+    w.seenCount = old.seenCount || 0;
+    w.streak = old.streak || 0;
+    w.lastPracticedAt = old.lastPracticedAt || "";
+    w.lastWrongAt = old.lastWrongAt || "";
+  });
+
   return words;
 }
+
 
 function saveWords(words = state.words) {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -784,7 +797,6 @@ function selectSmartWords(words, limit = SMART_LIMIT) {
 function navigate(view, params = {}) {
 	state.view = view;
 	state.params = params;
-	state.importResult = view === "import" ? state.importResult : null;
 	render();
 }
 
@@ -806,12 +818,10 @@ function render() {
 		home: renderHome,
 		decks: renderDecks,
 		tags: renderTags,
-		import: renderImport,
 		wordList: renderWordList,
+		smartWrite: renderSmartWrite,
 		practice: renderPractice,
 		problems: renderProblems,
-		export: renderExport,
-		gptPrompt: renderGptPrompt,
 		customListen: renderCustomListen,
 		listenPrompt: renderListenPrompt,
 		irregularForms: renderIrregularForms,
@@ -824,11 +834,14 @@ function renderHome() {
 	const all = state.words.length,
 		decks = getDecks().length,
 		problems = getProblemWords().length;
-	return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid" aria-label="Souhrn slovíček"><div class="stat"><strong>${all}</strong><span>slovíček</span></div><div class="stat"><strong>${decks}</strong><span>lekcí</span></div><div class="stat"><strong>${problems}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje nepravidelná slovesa. Ostatní lekce si můžeš přidávat importem.</div><div class="button-grid"><button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button><button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button>
+	return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid" aria-label="Souhrn slovíček"><div class="stat"><strong>${all}</strong><span>slovíček</span></div><div class="stat"><strong>${decks}</strong><span>lekcí</span></div><div class="stat"><strong>${problems}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje nepravidelná slovesa. Ostatní slovíčka jsou načítána ze souboru words.js..</div><div class="button-grid">
+<button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button>
+<button class="btn wide" type="button" data-action="smart-write">Doplňovačka</button>
+<button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button>
 
 <button class="btn secondary" type="button" data-action="links">Odkazy</button>
 
-<button class="btn secondary" type="button" data-action="import">Import</button><button class="btn secondary" type="button" data-action="gpt-prompt">Prompt pro GPT</button><button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button><button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button><button class="btn secondary" type="button" data-action="export">Export/Záloha</button><button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button></div></section>`;
+<button class="btn secondary" type="button" data-action="custom-listen">Vlastní poslech</button><button class="btn secondary" type="button" data-action="problems">Problémová slovíčka</button><button class="btn danger wide" type="button" data-action="delete-all">Smazat všechna data</button></div></section>`;
 }
 
 function renderDecks() {
@@ -885,7 +898,7 @@ function renderWordList() {
 }
 
 function renderWordRow(w) {
-	return `<article class="word-row"><div><h2>${escapeHtml(w.en)}</h2><p><strong>${escapeHtml(w.cz)}</strong> ${w.pronounce?`<span class="muted">[${escapeHtml(w.pronounce)}]</span>`:""}</p>${w.example?`<p class="muted">${escapeHtml(w.example)}</p>`:""}${w.note?`<p class="muted">${escapeHtml(w.note)}</p>`:""}<div class="row-meta">${getDeckNames(w).map(d=>`<span class="pill">Lekce: ${escapeHtml(d)}</span>`).join("")}<span class="pill">${w.mistakes} chyb</span><span class="pill">${w.correct} správně</span></div></div><button class="btn danger" type="button" data-action="delete-word" data-id="${escapeHtml(w.id)}">Smazat slovíčko</button></article>`;
+	return `<article class="word-row"><div><h2>${escapeHtml(w.en)}</h2><p><strong>${escapeHtml(w.cz)}</strong> ${w.pronounce?`<span class="muted">[${escapeHtml(w.pronounce)}]</span>`:""}</p>${w.example?`<p class="muted">${escapeHtml(w.example)}</p>`:""}${w.note?`<p class="muted">${escapeHtml(w.note)}</p>`:""}<div class="row-meta">${getDeckNames(w).map(d=>`<span class="pill">Lekce: ${escapeHtml(d)}</span>`).join("")}<span class="pill">${w.mistakes} chyb</span><span class="pill">${w.correct} správně</span></div></div><button class="btn danger" type="button" data-action="delete-word" data-id="${escapeHtml(w.id)}">Odebrat z problémových</button></article>`;
 }
 
 function createPractice(words, label, source, mode = "en-cz", restart = {}) {
@@ -920,6 +933,113 @@ function startSmartPractice() {
 	startPractice(words, `Chytrý trénink (${words.length})`, "smart", {
 		type: "smart"
 	});
+}
+
+function checkSmartWrite() {
+
+	const p = state.smartWrite;
+
+	if (!p || !p.queue.length)
+		return;
+
+	const word =
+		state.words.find(w => w.id === p.queue[0]);
+
+	if (!word)
+		return;
+
+	const input =
+		document.querySelector("#smartWriteAnswer");
+
+	const answer =
+		cleanFormAnswer(input?.value || "");
+
+	const correct =
+		cleanFormAnswer(word.en);
+
+	const now =
+		new Date().toISOString();
+
+	word.seenCount++;
+	word.lastPracticedAt = now;
+
+	if (answer === correct) {
+
+    word.correct++;
+    word.streak++;
+
+    p.correct++;
+
+    p.checked = true;
+
+    p.result = {
+        ok: true,
+        correct: word.en
+    };
+
+} else {
+
+    word.mistakes++;
+    word.streak = 0;
+    word.lastWrongAt = now;
+
+    p.wrong++;
+
+    p.checked = true;
+
+    p.result = {
+        ok: false,
+        correct: word.en
+    };
+}
+
+
+	saveWords();
+
+	render();
+}
+
+
+function nextSmartWrite() {
+
+    const p = state.smartWrite;
+
+    if (!p || !p.queue.length)
+        return;
+
+    p.queue.shift();
+
+    p.checked = false;
+    p.result = null;
+
+    render();
+
+    setTimeout(() => {
+        document.querySelector("#smartWriteAnswer")?.focus();
+    }, 0);
+}
+
+
+function startSmartWrite() {
+
+    const words = selectSmartWords(state.words, SMART_LIMIT);
+
+state.smartWrite = {
+    queue: shuffle(words.map(w => w.id)),
+    total: words.length,
+    correct: 0,
+    wrong: 0,
+    answer: "",
+    checked: false,
+    result: null
+};
+
+
+navigate("smartWrite");
+
+setTimeout(() => {
+    document.querySelector("#smartWriteAnswer")?.focus();
+}, 0);
 }
 
 function startDeckPractice(deck, limit = null) {
@@ -960,6 +1080,105 @@ function renderPractice() {
 		sub = rev ? (w.pronounce ? `[${w.pronounce}]` : "") : w.example;
 	return `${header(p.label)}<section class="practice-head"><div class="progress-line"><span>Zbývá ${p.queue.length} z ${p.total}</span><span>Chyby v kole: ${p.roundMistakes}</span></div><div class="mode-toggle"><button type="button" class="${p.mode==="en-cz"?"active":""}" data-action="set-mode" data-mode="en-cz">EN → CZ</button><button type="button" class="${p.mode==="cz-en"?"active":""}" data-action="set-mode" data-mode="cz-en">CZ → EN</button></div></section><button class="flashcard" type="button" data-action="flip-card"><p class="card-main">${escapeHtml(p.flipped?back:front)}</p>${p.flipped&&sub?`<p class="card-sub">${escapeHtml(sub)}</p>`:""}${p.flipped&&w.note?`<p class="card-detail">${escapeHtml(w.note)}</p>`:""}</button><div class="practice-actions"><button class="btn secondary" type="button" data-action="speak-word">🔊 Slovo</button><button class="btn secondary" type="button" data-action="speak-example" ${w.example?"":"disabled"}>🔊 Věta</button><button class="btn danger" type="button" data-action="mark-wrong">❌ Neumím</button><button class="btn success" type="button" data-action="mark-right">✅ Umím</button></div>`;
 }
+
+function renderSmartWrite() {
+
+	const p = state.smartWrite;
+
+	if (!p) {
+		return `${header("Doplňovačka")}
+		<div class="empty-state">
+		Trénink není spuštěný.
+		</div>`;
+	}
+
+	if (!p.queue.length) {
+
+		return `${header("Hotovo")}
+		<section class="stack">
+
+			<div class="summary-card">
+				<h2>Hotovo</h2>
+
+				<p>Správně: <strong>${p.correct}</strong></p>
+				<p>Chybně: <strong>${p.wrong}</strong></p>
+
+			</div>
+
+		</section>`;
+	}
+
+	const word =
+		state.words.find(w => w.id === p.queue[0]);
+
+	if (!word) {
+		return `${header("Chyba")}
+		<div class="empty-state">
+		Slovíčko nebylo nalezeno.
+		</div>`;
+	}
+
+	return `${header("Doplňovačka")}
+
+	<section class="stack">
+
+		<div class="summary-card">
+			<p>Zbývá ${p.queue.length} z ${p.total}</p>
+		</div>
+
+		<div class="flashcard">
+
+			<p class="card-main">
+				${escapeHtml(word.cz)}
+			</p>
+
+		</div>
+
+		<input
+			id="smartWriteAnswer"
+			class="input"
+			type="text"
+			autocomplete="off"
+			placeholder="Napiš anglický překlad"
+		>
+
+		
+${p.result ? `
+
+<div class="notice ${p.result.ok ? "success" : "danger"}">
+
+    <strong>
+        ${p.result.ok ? "✅ Správně" : "❌ Špatně"}
+    </strong>
+
+    ${!p.result.ok
+        ? `<p>Správně: ${escapeHtml(p.result.correct)}</p>`
+        : ""}
+
+</div>
+
+<button
+    class="btn"
+    type="button"
+    data-action="next-smart-write">
+    Další
+</button>
+
+` : `
+
+<button
+    class="btn success"
+    type="button"
+    data-action="check-smart-write">
+    Zkontrolovat
+</button>
+
+`}
+
+
+	</section>`;
+}
+
 
 function markCurrent(ok) {
 	const p = state.practice,
@@ -1150,6 +1369,29 @@ function handleIrregularKeyboard(event) {
     return;
   }
 }
+
+function handleSmartWriteKeyboard(event) {
+
+    if (state.view !== "smartWrite")
+        return;
+
+    if (event.key !== "Enter")
+        return;
+
+    event.preventDefault();
+
+    const p = state.smartWrite;
+
+    if (!p)
+        return;
+
+    if (p.checked)
+        nextSmartWrite();
+    else
+        checkSmartWrite();
+}
+``
+
 
 function renderIrregularForms(){
   const p = state.irregularFormsPractice,
@@ -1543,18 +1785,37 @@ function speak(text) {
 }
 
 function deleteAll() {
-	if (!confirm("Opravdu smazat všechna uložená slovíčka? Pevná nepravidelná slovesa se znovu připraví při dalším načtení.")) return;
-	state.words = mergeWords([], buildIrregularVerbs()).words;
+
+	if (!confirm("Opravdu smazat všechna uložená data?"))
+		return;
+
+	localStorage.removeItem(STORAGE_KEY);
+
+	state.words = loadWords();
+
 	state.practice = null;
-	saveWords();
+
 	navigate("home");
 }
 
+
 function deleteWord(id) {
-	if (!confirm("Smazat toto slovíčko?")) return;
-	state.words = state.words.filter(w => w.id !== id);
+
+	const word = state.words.find(w => w.id === id);
+
+	if (!word) return;
+
+	word.mistakes = 0;
+	word.streak = 0;
+	word.lastWrongAt = "";
+	word.correct = 0;
+
 	saveWords();
-	render();
+
+	if (state.view === "problems") {
+		render();
+	}
+
 }
 async function copyTextFrom(selector, message) {
 	try {
@@ -1579,6 +1840,9 @@ app.addEventListener("click", event => {
 	if (action === "custom-listen") navigate("customListen");
 	if (action === "listen-prompt") navigate("listenPrompt");
 	if (action === "smart-practice") startSmartPractice();
+	if (action === "smart-write") startSmartWrite();
+	if (action === "check-smart-write") checkSmartWrite();
+	if (action === "next-smart-write")    nextSmartWrite();
 	if (action === "links") navigate("links");
 	if (action === "practice-irregular") startIrregularFormsPractice();
 	if (action === "start-irregular-forms") startIrregularFormsPractice();
@@ -1623,6 +1887,7 @@ app.addEventListener("click", event => {
 });
 
 document.addEventListener("keydown", handleIrregularKeyboard);
+document.addEventListener("keydown", handleSmartWriteKeyboard);
 
 if ("serviceWorker" in navigator) {
 	window.addEventListener("load", () => {
