@@ -12338,18 +12338,5 @@ const CUSTOM_WORDS = [
     "example": "He bought plot of land.",
     "note": ""
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
 ];
 

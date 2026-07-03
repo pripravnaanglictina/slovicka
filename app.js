@@ -521,19 +521,10 @@ const LINKS = [
       category: "HK",
       url: "https://forms.office.com/e/kmj5eTLwHF"
     }
-  
 
     ]
   }
-
-
-
-
-
-
-
 ];
-
 
 const app = document.querySelector("#app");
 const state = {
@@ -720,7 +711,6 @@ function loadWords() {
 
   return words;
 }
-
 
 function saveWords(words = state.words) {
 	localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -993,12 +983,10 @@ function checkSmartWrite() {
     };
 }
 
-
 	saveWords();
 
 	render();
 }
-
 
 function nextSmartWrite() {
 
@@ -1019,7 +1007,6 @@ function nextSmartWrite() {
     }, 0);
 }
 
-
 function startSmartWrite() {
 
     const words = selectSmartWords(state.words, SMART_LIMIT);
@@ -1033,7 +1020,6 @@ state.smartWrite = {
     checked: false,
     result: null
 };
-
 
 navigate("smartWrite");
 
