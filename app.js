@@ -809,6 +809,7 @@ function render() {
 		decks: renderDecks,
 		tags: renderTags,
 		wordList: renderWordList,
+		smartWriteSelect: renderSmartWriteSelect,
 		smartWrite: renderSmartWrite,
 		practice: renderPractice,
 		problems: renderProblems,
@@ -826,7 +827,9 @@ function renderHome() {
 		problems = getProblemWords().length;
 	return `${header("Moje slovíčka",false)}<section class="stack"><div class="stats-grid" aria-label="Souhrn slovíček"><div class="stat"><strong>${all}</strong><span>slovíček</span></div><div class="stat"><strong>${decks}</strong><span>lekcí</span></div><div class="stat"><strong>${problems}</strong><span>problémových</span></div></div><div class="notice">Výchozí aplikace obsahuje nepravidelná slovesa. Ostatní slovíčka jsou načítána ze souboru words.js..</div><div class="button-grid">
 <button class="btn wide" type="button" data-action="smart-practice">Chytrý trénink</button>
-<button class="btn wide" type="button" data-action="smart-write">Doplňovačka</button>
+<button class="btn wide" type="button" data-action="smart-write-select">
+Doplňovačka
+</button>
 <button class="btn wide" type="button" data-action="practice-irregular">Nepravidelná slovesa</button><button class="btn" type="button" data-action="decks">Lekce</button>
 
 <button class="btn secondary" type="button" data-action="links">Odkazy</button>
@@ -1007,25 +1010,33 @@ function nextSmartWrite() {
     }, 0);
 }
 
-function startSmartWrite() {
+function startSmartWrite(deck = null) {
 
-    const words = selectSmartWords(state.words, SMART_LIMIT);
+    let sourceWords;
 
-state.smartWrite = {
-    queue: shuffle(words.map(w => w.id)),
-    total: words.length,
-    correct: 0,
-    wrong: 0,
-    answer: "",
-    checked: false,
-    result: null
-};
+    if (deck)
+        sourceWords = getWordsForDeck(deck);
+    else
+        sourceWords = state.words;
 
-navigate("smartWrite");
+    const words =
+        selectSmartWords(sourceWords, SMART_LIMIT);
 
-setTimeout(() => {
-    document.querySelector("#smartWriteAnswer")?.focus();
-}, 0);
+    state.smartWrite = {
+        queue: shuffle(words.map(w => w.id)),
+        total: words.length,
+        correct: 0,
+        wrong: 0,
+        answer: "",
+        checked: false,
+        result: null
+    };
+
+    navigate("smartWrite");
+
+    setTimeout(() => {
+        document.querySelector("#smartWriteAnswer")?.focus();
+    }, 0);
 }
 
 function startDeckPractice(deck, limit = null) {
@@ -1066,6 +1077,39 @@ function renderPractice() {
 		sub = rev ? (w.pronounce ? `[${w.pronounce}]` : "") : w.example;
 	return `${header(p.label)}<section class="practice-head"><div class="progress-line"><span>Zbývá ${p.queue.length} z ${p.total}</span><span>Chyby v kole: ${p.roundMistakes}</span></div><div class="mode-toggle"><button type="button" class="${p.mode==="en-cz"?"active":""}" data-action="set-mode" data-mode="en-cz">EN → CZ</button><button type="button" class="${p.mode==="cz-en"?"active":""}" data-action="set-mode" data-mode="cz-en">CZ → EN</button></div></section><button class="flashcard" type="button" data-action="flip-card"><p class="card-main">${escapeHtml(p.flipped?back:front)}</p>${p.flipped&&sub?`<p class="card-sub">${escapeHtml(sub)}</p>`:""}${p.flipped&&w.note?`<p class="card-detail">${escapeHtml(w.note)}</p>`:""}</button><div class="practice-actions"><button class="btn secondary" type="button" data-action="speak-word">🔊 Slovo</button><button class="btn secondary" type="button" data-action="speak-example" ${w.example?"":"disabled"}>🔊 Věta</button><button class="btn danger" type="button" data-action="mark-wrong">❌ Neumím</button><button class="btn success" type="button" data-action="mark-right">✅ Umím</button></div>`;
 }
+
+
+function renderSmartWriteSelect() {
+
+    const decks = getDecks();
+
+    return `
+    ${header("Vyber lekci")}
+
+    <section class="stack">
+
+        <button
+            class="btn"
+            data-action="smart-write-all">
+            Všechny lekce
+        </button>
+
+        ${decks.map(d => `
+            <button
+                class="btn secondary"
+                data-action="smart-write-deck"
+                data-name="${escapeHtml(d.name)}">
+
+                ${escapeHtml(d.name)}
+                (${d.count})
+
+            </button>
+        `).join("")}
+
+    </section>
+    `;
+}
+
 
 function renderSmartWrite() {
 
@@ -1870,6 +1914,17 @@ app.addEventListener("click", event => {
 	if (action === "copy-gpt-prompt") copyTextFrom("#gptPromptText", "Prompt pro GPT je zkopírovaný.");
 	if (action === "copy-listen-prompt") copyTextFrom("#listenPromptText", "Prompt pro poslech je zkopírovaný.");
 	if (action === "download-export") downloadExport();
+if (action === "smart-write-select")
+    navigate("smartWriteSelect");
+
+if (action === "smart-write-all")
+    startSmartWrite();
+
+if (action === "smart-write-deck")
+    startSmartWrite(name);
+
+
+
 });
 
 document.addEventListener("keydown", handleIrregularKeyboard);

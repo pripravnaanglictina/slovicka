@@ -12337,6 +12337,1092 @@ const CUSTOM_WORDS = [
     "cz": "pozemek",
     "example": "He bought plot of land.",
     "note": ""
-  }
+  },
+
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "besides",
+  "pronounce": "",
+  "cz": "kromě toho",
+  "example": "Besides English, he also speaks German.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "postponed",
+  "pronounce": "",
+  "cz": "odložený",
+  "example": "The meeting was postponed until next week.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "neglected",
+  "pronounce": "",
+  "cz": "zanedbaný",
+  "example": "The neglected building needed repairs.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "trimmed",
+  "pronounce": "",
+  "cz": "oříznutý, upravený",
+  "example": "He trimmed the bushes yesterday.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "pistons",
+  "pronounce": "",
+  "cz": "písty",
+  "example": "The engine pistons were damaged.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "spark plugs",
+  "pronounce": "",
+  "cz": "zapalovací svíčky",
+  "example": "The mechanic replaced the spark plugs.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "greeted",
+  "pronounce": "",
+  "cz": "pozdravil",
+  "example": "She greeted everyone politely.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "considerable",
+  "pronounce": "",
+  "cz": "značný",
+  "example": "The project required considerable effort.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "contributed",
+  "pronounce": "",
+  "cz": "přispěl",
+  "example": "Everyone contributed to the project.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "pouring",
+  "pronounce": "",
+  "cz": "lití, nalévání",
+  "example": "It was pouring with rain.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "treatment",
+  "pronounce": "",
+  "cz": "zacházení, ošetření",
+  "example": "The patient received treatment immediately.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "finer",
+  "pronounce": "",
+  "cz": "jemnější, lepší",
+  "example": "This fabric is much finer than the other one.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "extinguish it",
+  "pronounce": "",
+  "cz": "uhas to",
+  "example": "Please extinguish it before leaving.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "bother",
+  "pronounce": "",
+  "cz": "obtěžovat",
+  "example": "I do not want to bother you.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "rather",
+  "pronounce": "",
+  "cz": "raději, spíše",
+  "example": "I would rather stay at home.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "dayroom",
+  "pronounce": "",
+  "cz": "společenská místnost",
+  "example": "The soldiers relaxed in the dayroom.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "find out",
+  "pronounce": "",
+  "cz": "zjistit",
+  "example": "We need to find out what happened.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "operate",
+  "pronounce": "",
+  "cz": "obsluhovat, fungovat",
+  "example": "Can you operate this machine?",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "in order to",
+  "pronounce": "",
+  "cz": "aby",
+  "example": "He studies hard in order to pass the exam.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "intended",
+  "pronounce": "",
+  "cz": "zamýšlený",
+  "example": "The message was intended for you.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "catch on to",
+  "pronounce": "",
+  "cz": "pochopit",
+  "example": "He quickly caught on to the new system.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "pretended",
+  "pronounce": "",
+  "cz": "předstíral",
+  "example": "He pretended to be asleep.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "objected",
+  "pronounce": "",
+  "cz": "namítal",
+  "example": "Several people objected to the proposal.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "on account of",
+  "pronounce": "",
+  "cz": "kvůli",
+  "example": "The event was cancelled on account of the weather.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "aware of",
+  "pronounce": "",
+  "cz": "vědom si",
+  "example": "I am aware of the situation.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "freely",
+  "pronounce": "",
+  "cz": "volně",
+  "example": "The information is freely available.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "among",
+  "pronounce": "",
+  "cz": "mezi",
+  "example": "He was sitting among friends.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "downtown",
+  "pronounce": "",
+  "cz": "centrum města",
+  "example": "They went downtown for dinner.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "looked out",
+  "pronounce": "",
+  "cz": "vyhlédl",
+  "example": "She looked out of the window.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "looked over",
+  "pronounce": "",
+  "cz": "prohlédl si",
+  "example": "The officer looked over the report.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "provider",
+  "pronounce": "",
+  "cz": "poskytovatel",
+  "example": "Our internet provider has changed.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "filling",
+  "pronounce": "",
+  "cz": "plomba, výplň",
+  "example": "The dentist replaced the filling.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "mad",
+  "pronounce": "",
+  "cz": "naštvaný",
+  "example": "She was mad about the mistake.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "rear",
+  "pronounce": "",
+  "cz": "zadní",
+  "example": "The rear door was locked.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "beneath",
+  "pronounce": "",
+  "cz": "pod",
+  "example": "The keys were beneath the table.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "advice",
+  "pronounce": "",
+  "cz": "rada",
+  "example": "Thank you for your advice.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "approach",
+  "pronounce": "",
+  "cz": "přístup",
+  "example": "We need a different approach.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "calm",
+  "pronounce": "",
+  "cz": "klidný",
+  "example": "Stay calm during the emergency.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "rise",
+  "pronounce": "",
+  "cz": "stoupat",
+  "example": "Prices continue to rise.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "bargain",
+  "pronounce": "",
+  "cz": "výhodná koupě",
+  "example": "The car was a real bargain.",
+  "note": ""
+},
+
+
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "stuff",
+  "pronounce": "",
+  "cz": "věci",
+  "example": "There is a lot of stuff in the garage.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "stale",
+  "pronounce": "",
+  "cz": "zatuchlý, okoralý",
+  "example": "The bread had become stale.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "drill",
+  "pronounce": "",
+  "cz": "cvičení, vrtat",
+  "example": "The soldiers took part in a drill.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "work them out",
+  "pronounce": "",
+  "cz": "vyřešit je",
+  "example": "We need to work them out together.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "nod",
+  "pronounce": "",
+  "cz": "přikývnout",
+  "example": "He nodded in agreement.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "on the other hand",
+  "pronounce": "",
+  "cz": "na druhou stranu",
+  "example": "On the other hand, the idea has some advantages.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "careless",
+  "pronounce": "",
+  "cz": "neopatrný",
+  "example": "A careless mistake caused the problem.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "turn in",
+  "pronounce": "",
+  "cz": "odevzdat",
+  "example": "Please turn in your assignment tomorrow.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "turn up",
+  "pronounce": "",
+  "cz": "objevit se",
+  "example": "He finally turned up after an hour.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "you had better",
+  "pronounce": "",
+  "cz": "raději bys měl",
+  "example": "You had better leave now.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "spot",
+  "pronounce": "",
+  "cz": "místo, spatřit",
+  "example": "I spotted him across the street.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "hang around",
+  "pronounce": "",
+  "cz": "poflakovat se",
+  "example": "They often hang around the station.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "tape",
+  "pronounce": "",
+  "cz": "páska",
+  "example": "Use tape to fix the package.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "accurately",
+  "pronounce": "",
+  "cz": "přesně",
+  "example": "The measurements were recorded accurately.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "damp",
+  "pronounce": "",
+  "cz": "vlhký",
+  "example": "The clothes were still damp.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "stick to",
+  "pronounce": "",
+  "cz": "držet se",
+  "example": "Stick to the plan.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "condensed",
+  "pronounce": "",
+  "cz": "zhuštěný",
+  "example": "The report was condensed into one page.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "spill",
+  "pronounce": "",
+  "cz": "rozlít",
+  "example": "Be careful not to spill the coffee.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "argument",
+  "pronounce": "",
+  "cz": "hádka, spor",
+  "example": "They had an argument yesterday.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "adjust",
+  "pronounce": "",
+  "cz": "upravit",
+  "example": "Adjust the mirror before driving.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "tightened",
+  "pronounce": "",
+  "cz": "utáhl",
+  "example": "He tightened the screws carefully.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "float",
+  "pronounce": "",
+  "cz": "plavat, vznášet se",
+  "example": "The boat floated on the lake.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "arrange",
+  "pronounce": "",
+  "cz": "zařídit",
+  "example": "I will arrange the meeting.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "appreciate",
+  "pronounce": "",
+  "cz": "ocenit",
+  "example": "I appreciate your help.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "grateful",
+  "pronounce": "",
+  "cz": "vděčný",
+  "example": "I am grateful for your support.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "doubt",
+  "pronounce": "",
+  "cz": "pochybnost",
+  "example": "There is no doubt about it.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "vicinity",
+  "pronounce": "",
+  "cz": "okolí",
+  "example": "There are several shops in the vicinity.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "overcast",
+  "pronounce": "",
+  "cz": "zatažený",
+  "example": "The sky was overcast all day.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "examined",
+  "pronounce": "",
+  "cz": "prohlédl, vyšetřil",
+  "example": "The doctor examined the patient.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "hand me",
+  "pronounce": "",
+  "cz": "podej mi",
+  "example": "Please hand me that book.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "coiled the wire",
+  "pronounce": "",
+  "cz": "smotal drát",
+  "example": "He coiled the wire neatly.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "relief",
+  "pronounce": "",
+  "cz": "úleva",
+  "example": "It was a great relief to hear the news.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "it brings relief",
+  "pronounce": "",
+  "cz": "přináší úlevu",
+  "example": "The medicine brings relief from pain.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "numb",
+  "pronounce": "",
+  "cz": "necitlivý",
+  "example": "My fingers went numb from the cold.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "disappear",
+  "pronounce": "",
+  "cz": "zmizet",
+  "example": "The clouds disappeared quickly.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "good shape",
+  "pronounce": "",
+  "cz": "dobrý stav",
+  "example": "The car is still in good shape.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "undergo",
+  "pronounce": "",
+  "cz": "podstoupit",
+  "example": "He had to undergo surgery.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "hardship",
+  "pronounce": "",
+  "cz": "strádání, těžkost",
+  "example": "Many families suffered hardship.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "resembles",
+  "pronounce": "",
+  "cz": "podobá se",
+  "example": "She resembles her mother.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "i am short of petrol",
+  "pronounce": "",
+  "cz": "dochází mi benzín",
+  "example": "I am short of petrol and need a gas station.",
+  "note": ""
+},
+
+
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "sufficient",
+  "pronounce": "",
+  "cz": "dostatečný",
+  "example": "We have sufficient supplies for the mission.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "poor maintenance",
+  "pronounce": "",
+  "cz": "špatná údržba",
+  "example": "The failure was caused by poor maintenance.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "improper repairs",
+  "pronounce": "",
+  "cz": "nesprávné opravy",
+  "example": "The accident resulted from improper repairs.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "spring",
+  "pronounce": "",
+  "cz": "pružina",
+  "example": "The spring was damaged and needed replacement.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "straightened",
+  "pronounce": "",
+  "cz": "narovnal",
+  "example": "He straightened the bent metal rod.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "polished",
+  "pronounce": "",
+  "cz": "vyleštěný",
+  "example": "The floor was polished yesterday.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "bother",
+  "pronounce": "",
+  "cz": "obtěžovat",
+  "example": "Sorry to bother you so late.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "capable",
+  "pronounce": "",
+  "cz": "schopný",
+  "example": "She is capable of doing the job.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "accustomed",
+  "pronounce": "",
+  "cz": "zvyklý",
+  "example": "He is accustomed to hard work.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "bushes",
+  "pronounce": "",
+  "cz": "keře",
+  "example": "The garden was full of bushes.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "conduct",
+  "pronounce": "",
+  "cz": "chování, vést",
+  "example": "His conduct was excellent.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "marched",
+  "pronounce": "",
+  "cz": "pochodoval",
+  "example": "The soldiers marched across the field.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "saluted",
+  "pronounce": "",
+  "cz": "zasalutoval",
+  "example": "He saluted the officer.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "examine",
+  "pronounce": "",
+  "cz": "prozkoumat",
+  "example": "The mechanic will examine the engine.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "property",
+  "pronounce": "",
+  "cz": "majetek",
+  "example": "Private property must be respected.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "notified",
+  "pronounce": "",
+  "cz": "informoval",
+  "example": "We were notified about the changes.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "ignition",
+  "pronounce": "",
+  "cz": "zapalování",
+  "example": "The ignition system was faulty.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "take your time",
+  "pronounce": "",
+  "cz": "nespěchej",
+  "example": "Take your time and do it carefully.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "tin",
+  "pronounce": "",
+  "cz": "plechovka",
+  "example": "He opened a tin of beans.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "severe",
+  "pronounce": "",
+  "cz": "vážný, silný",
+  "example": "The storm caused severe damage.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "among",
+  "pronounce": "",
+  "cz": "mezi",
+  "example": "He was among the first to arrive.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "willing",
+  "pronounce": "",
+  "cz": "ochotný",
+  "example": "She was willing to help us.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "assignment",
+  "pronounce": "",
+  "cz": "úkol",
+  "example": "Finish your assignment before Friday.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "sooner",
+  "pronounce": "",
+  "cz": "dříve",
+  "example": "The sooner you start, the better.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "come out",
+  "pronounce": "",
+  "cz": "vyjít najevo",
+  "example": "The truth eventually came out.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "get along with",
+  "pronounce": "",
+  "cz": "vycházet s",
+  "example": "I get along with my colleagues.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "keep up",
+  "pronounce": "",
+  "cz": "držet krok",
+  "example": "Try to keep up with the group.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "drop out",
+  "pronounce": "",
+  "cz": "odejít, nedokončit",
+  "example": "He dropped out of college.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "spoilt",
+  "pronounce": "",
+  "cz": "rozmazlený",
+  "example": "The spoilt child got everything he wanted.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "selfish",
+  "pronounce": "",
+  "cz": "sobecký",
+  "example": "It was selfish of him to act that way.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "insecure",
+  "pronounce": "",
+  "cz": "nejistý",
+  "example": "She felt insecure about her presentation.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "mean",
+  "pronounce": "",
+  "cz": "podlý",
+  "example": "That was a mean thing to say.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "dozen",
+  "pronounce": "",
+  "cz": "tucet",
+  "example": "I bought a dozen eggs.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "bright",
+  "pronounce": "",
+  "cz": "chytrý, bystrý",
+  "example": "She is a bright student.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "in advance",
+  "pronounce": "",
+  "cz": "předem",
+  "example": "Thank you in advance for your help.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "dented",
+  "pronounce": "",
+  "cz": "promáčknutý",
+  "example": "The car door was dented.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "majority",
+  "pronounce": "",
+  "cz": "většina",
+  "example": "The majority voted in favor.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "minority",
+  "pronounce": "",
+  "cz": "menšina",
+  "example": "The proposal was opposed by a minority.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "unlawful",
+  "pronounce": "",
+  "cz": "nezákonný",
+  "example": "Unlawful activities are punishable.",
+  "note": ""
+},
+{
+  "deck": "Přípravný kurz",
+  "tags": [],
+  "en": "a couple of",
+  "pronounce": "",
+  "cz": "několik",
+  "example": "I need a couple of minutes.",
+  "note": ""
+},
+
 ];
 
